@@ -1,35 +1,35 @@
 # MondoDB connection string (for tool-related data)
-mongo_uri_for_tools: mongodb://129.10.187.52:27017/saga_tools
+mongo_uri_for_tools: mongodb://127.0.0.1:27017/saga_tools
 
 ### CA ###
 ca:
   # Endpoint where CA hosts relevant files
-  endpoint: http://129.10.186.246:8000
+  endpoint: http://127.0.0.1:8000
   config:
-    COUNTRY_NAME: US
-    STATE_NAME: MA
-    LOCALITY_NAME: Boston
+    COUNTRY_NAME: XX
+    STATE_NAME: Anonymous
+    LOCALITY_NAME: Anonymous
     ORG_NAME: ca
     COMMON_NAME: localhost
     IP: 127.0.0.1
 
 ### PROVIDER ###
 provider:
-  endpoint: https://129.10.187.52:5000
+  endpoint: https://127.0.0.1:5000
   config:
-    COUNTRY_NAME: US
-    STATE_NAME: MA
-    LOCALITY_NAME: Boston
+    COUNTRY_NAME: XX
+    STATE_NAME: Anonymous
+    LOCALITY_NAME: Anonymous
     ORG_NAME: provider
-    COMMON_NAME: 129.10.187.52
-    IP: 129.10.187.52
+    COMMON_NAME: localhost
+    IP: 127.0.0.1
 
 ### USER ###
 user:
   config:
-    COUNTRY_NAME: US
-    STATE_NAME: MA
-    LOCALITY_NAME: Boston
+    COUNTRY_NAME: XX
+    STATE_NAME: Anonymous
+    LOCALITY_NAME: Anonymous
     ORG_NAME: user
     COMMON_NAME: localhost
     IP: 127.0.0.1
@@ -37,7 +37,7 @@ user:
 ### AGENTS ###
 agent:
   config:
-    COUNTRY_NAME: US
-    STATE_NAME: MA
-    LOCALITY_NAME: Boston
+    COUNTRY_NAME: XX
+    STATE_NAME: Anonymous
+    LOCALITY_NAME: Anonymous
     ORG_NAME: saga
