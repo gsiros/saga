@@ -15,7 +15,7 @@ setup(
         "flask_pymongo",
         "flask_bcrypt",
         "flask_jwt_extended",
-        "authlib"
+        "authlib",
         "smolagents"
     ],
     classifiers=[
