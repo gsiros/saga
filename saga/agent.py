@@ -23,10 +23,87 @@ from saga.ca.CA import get_SAGA_CA
 import saga.common.crypto as sc
 from saga.local_agent import LocalAgent, DummyAgent
 
+from a2a.server.apps import A2AStarletteApplication
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
+from a2a.types import (
+    AgentCapabilities,
+    AgentCard,
+    AgentSkill,
+)
+from typing_extensions import override
+
+from a2a.server.agent_execution import AgentExecutor, RequestContext
+from a2a.server.events import EventQueue
+from a2a.utils import new_agent_text_message
+
+import asyncio
+from typing import Any
+from uuid import uuid4
+import httpx
+import uvicorn
+
+from a2a.client import A2ACardResolver, A2AClient
+from a2a.types import (MessageSendParams, SendMessageRequest,
+                       SendStreamingMessageRequest)
+
+
+
 DEBUG = False
 NONCE_SIZE_BYTES = 12  # Size of the nonce in bytes
 MAX_QUERIES = 100
 # TODO: Handle max_queries
+
+class HelloWorldAgent:
+    """Hello World Agent."""
+
+    async def invoke(self) -> str:
+        return 'Hello World'
+
+class HelloWorldAgentExecutor(AgentExecutor):
+    """Test AgentProxy Implementation."""
+
+    def __init__(self):
+        self.agent = HelloWorldAgent()
+
+    @override
+    async def execute(
+        self,
+        context: RequestContext,
+        event_queue: EventQueue,
+    ) -> None:
+        result = await self.agent.invoke()
+        event_queue.enqueue_event(new_agent_text_message(result))
+
+    @override
+    async def cancel(
+        self, context: RequestContext, event_queue: EventQueue
+    ) -> None:
+        raise Exception('cancel not supported')
+
+class SAGAAgentExecutor(AgentExecutor):
+    """SAGA Agent Executor."""
+
+    def __init__(self, local_agent):
+        self.local_agent = local_agent
+        self.agent_instance = None
+        self.initiating_agent = True
+
+    @override
+    async def execute(
+        self,
+        context: RequestContext,
+        event_queue: EventQueue,
+    ) -> None:
+        query = context.get_user_input()
+        self.agent_instance, result = self.local_agent.run(query, initiating_agent=self.initiating_agent, agent_instance=self.agent_instance)
+        event_queue.enqueue_event(new_agent_text_message(result))
+
+    @override
+    async def cancel(
+        self, context: RequestContext, event_queue: EventQueue
+    ) -> None:
+        raise Exception('cancel not supported')
 
 
 def get_agent_material(dir_path: Path) -> dict:
@@ -96,7 +173,7 @@ class Agent:
         This class is responsible for managing the agent's lifecycle, handling communication with other agents,
         and managing the agent's access control and security features.
     """
-    def __init__(self, workdir: str, material: dict, local_agent: LocalAgent = None):
+    def __init__(self, workdir: str, material: dict, local_agent: LocalAgent = None, a2a_port: int = None):
         """
         Initializes the Agent object with the given work directory and material.
 
@@ -235,6 +312,115 @@ class Agent:
 
         self.monitor = Monitor()
         self.llm_monitor = Monitor(time.time)
+
+        # A2A
+        self.a2a_port = a2a_port
+        self.rcv_a2a_card = None
+
+    async def fetch_A2A_agent_card(self, base_url: str) -> AgentCard:
+        """
+        Fetches the A2A agent card from the given base URL.
+        
+        Args:
+            base_url (str): The base URL of the A2A server.
+        
+        Returns:
+            AgentCard: The fetched agent card.
+        """
+        PUBLIC_AGENT_CARD_PATH = "/.well-known/agent.json"
+        logger.log("A2A_CLIENT", f"Attempting to fetch public agent card from: {base_url}{PUBLIC_AGENT_CARD_PATH}")
+        async with httpx.AsyncClient() as httpx_client:
+            resolver = A2ACardResolver(
+                httpx_client=httpx_client,
+                base_url=base_url,
+            )
+            logger.log("A2A_CLIENT", f"Resolver initialized with base URL: {resolver.base_url}")
+            return await resolver.get_agent_card(relative_card_path=PUBLIC_AGENT_CARD_PATH)
+
+    async def test_A2A_client(self, message: str, card=None, url=None) -> None:
+        """
+        Tests the A2A client by contacting the A2A server and connecting to it.
+        """
+
+        async with httpx.AsyncClient() as httpx_client:
+            if card:
+                client = A2AClient(
+                    httpx_client=httpx_client, agent_card=card
+                )
+            elif url:
+                client = A2AClient(
+                    httpx_client=httpx_client, url=url
+                )
+            else:
+                raise ValueError("Either card or url must be provided to initialize the A2A client.")
+            
+            logger.log("A2A_CLIENT", f"Client initialized with agent card: {client.url}")
+            send_message_payload: dict[str, Any] = {
+                'message': {
+                    'role': 'user',
+                    'parts': [
+                        {'kind': 'text', 'text': message}
+                    ],
+                    'messageId': uuid4().hex,
+                },
+            }
+            request = SendMessageRequest(
+                params=MessageSendParams(**send_message_payload)
+            )
+
+            response = await client.send_message(request)
+            # print(response)
+            return response.model_dump(mode='json', exclude_none=True)['result']['parts'][0]['text']
+
+    def start_A2A_Server(self, port: int):
+        """
+        Starts the A2A server for the agent.
+        """
+        def run():
+            logger.log("A2A_SERVER", "Starting A2A server...")
+            skill = AgentSkill(
+                id='hello_world',
+                name='Returns hello world',
+                description='just returns hello world',
+                tags=['hello world'],
+                examples=['hi', 'hello world'],
+            )
+
+            # This will be the public-facing agent card
+            public_agent_card = AgentCard(
+                name='Hello World Agent',
+                description='Just a hello world agent',
+                url=f'http://localhost:{port}/',
+                version='1.0.0',
+                defaultInputModes=['text'],
+                defaultOutputModes=['text'],
+                capabilities=AgentCapabilities(streaming=True),
+                skills=[skill],  # Only the basic skill for the public card
+                supportsAuthenticatedExtendedCard=False,
+            )
+
+            # TODO: handle initiating/receiving agent flag within the SAGAAGentExecutor
+            request_handler = DefaultRequestHandler(
+                agent_executor=SAGAAgentExecutor(
+                    local_agent=self.local_agent
+                ),
+                task_store=InMemoryTaskStore(),
+            )
+
+            app = A2AStarletteApplication(agent_card=public_agent_card,
+                                            http_handler=request_handler)
+        
+            # uvicorn.run(app.build(), host='0.0.0.0', port=port)
+
+            config = uvicorn.Config(app=app.build(), host="localhost", port=port, log_level="debug")
+            server = uvicorn.Server(config=config)
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(server.serve())
+        
+        # Start the A2A server in a separate thread
+        a2a_server_thread = threading.Thread(target=run, daemon=True)
+        a2a_server_thread.start()
 
     def get_provider_cert(self) -> Certificate:
         """
@@ -561,7 +747,10 @@ class Agent:
                 return True
             self.monitor.stop("agent:communication_conv_init")
             self.llm_monitor.start("agent:llm_backend_init")
-            agent_instance, text = self.local_agent.run(received_message, initiating_agent=True, agent_instance=agent_instance)
+            # PUSH DOWN THE A2A STACK:
+            text = asyncio.run(self.test_A2A_client(received_message, url=f"http://localhost:{self.a2a_port}/"))
+            logger.log("A2A_SERVER", f": replied '{text}'")
+            # agent_instance, text = self.local_agent.run(received_message, initiating_agent=True, agent_instance=agent_instance)
             self.llm_monitor.stop("agent:llm_backend_init")
             self.monitor.start("agent:communication_conv_init")
             i += 1 # increment queries counter
@@ -628,7 +817,10 @@ class Agent:
             # Get agent response:
             self.monitor.stop("agent:communication_conv_recv")
             self.llm_monitor.start("agent:llm_backend_recv")
-            agent_instance, response = self.local_agent.run(query=received_message, initiating_agent=False, agent_instance=agent_instance)
+            # PUSH DOWN THE A2A STACK:
+            response = asyncio.run(self.test_A2A_client(received_message, url=f"http://localhost:{self.a2a_port}/"))
+            logger.log("A2A_SERVER", f": replied '{response}'")
+            # agent_instance, response = self.local_agent.run(query=received_message, initiating_agent=False, agent_instance=agent_instance)
             self.llm_monitor.stop("agent:llm_backend_recv")
             self.monitor.start("agent:communication_conv_recv")
             i+=1 # increase query counter
@@ -668,6 +860,14 @@ class Agent:
             message: The initial message to send to the receiving agent.
         """
 
+        self.start_A2A_Server(self.a2a_port)
+
+        # Test the A2A client:
+        # result = asyncio.run(self.test_A2A_client("Hello World!"))
+        # logger.log("A2A_CLIENT", f"Test A2A client result: {result}")
+        self.rcv_a2a_card = asyncio.run(self.fetch_A2A_agent_card('http://localhost:9999'))
+        logger.log("A2A_CLIENT", f"Fetched A2A agent card: {self.rcv_a2a_card}")
+        
         # Start measuring algo overhead:
         self.monitor.start("agent:communication_proto_init")
 
@@ -1152,6 +1352,7 @@ class Agent:
         Listens for incoming TLS connections, handles Ctrl+C gracefully,
         and ensures proper socket closure on shutdown.
         """
+        self.start_A2A_Server(self.a2a_port)
         # Create SSL context for the server
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1 | ssl.OP_NO_TLSv1_2  # TLS 1.3 only

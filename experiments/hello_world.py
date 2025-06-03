@@ -6,7 +6,7 @@ import os
 from saga.agent import Agent, get_agent_material
 from saga.config import ROOT_DIR, UserConfig, get_index_of_agent
 
-def main(mode, config_path, other_user_config_path=None):
+def main(mode, config_path, other_user_config_path=None, a2a_port=None):
     config = UserConfig.load(config_path, drop_extra_fields=True)
 
     # Find the index of the "email_agent" out of all config.agents
@@ -19,7 +19,8 @@ def main(mode, config_path, other_user_config_path=None):
     material = get_agent_material(credentials_endpoint)
     agent = Agent(workdir=credentials_endpoint,
                   material=material,
-                  local_agent=None)
+                  local_agent=None, 
+                  a2a_port=a2a_port)
 
     if mode == "listen":
         agent.listen()
@@ -40,11 +41,13 @@ if __name__ == "__main__":
     mode = sys.argv[1]
     if mode not in ["listen", "query"]:
         raise ValueError("Mode (first argument) must be either 'listen' or 'query'")
-    config_path = sys.argv[2]
-    other_user_config_path = sys.argv[3] if len(sys.argv) > 3 else None
+    a2a_port = int(sys.argv[2])
+    config_path = sys.argv[3]
+    other_user_config_path = sys.argv[4] if len(sys.argv) > 4 else None
     
     if mode == "query" and other_user_config_path is None:
         raise ValueError("Endpoint (third argument) must be provided in query mode")
     main(mode=mode,
          config_path=config_path,
-         other_user_config_path=other_user_config_path)
+         other_user_config_path=other_user_config_path,
+         a2a_port=a2a_port)
