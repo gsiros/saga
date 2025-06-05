@@ -320,6 +320,8 @@ class Agent:
         # A2A
         self.a2a_port = a2a_port
         self.rcv_a2a_card = None
+        self.my_a2a_card = material.get("a2a_card", None)
+        self.start_A2A_Server(AgentCard(**self.my_a2a_card), self.a2a_port)
 
     async def fetch_A2A_agent_card(self, base_url: str) -> AgentCard:
         """
@@ -367,7 +369,7 @@ class Agent:
         async with httpx.AsyncClient() as httpx_client:
             if card:
                 client = A2AClient(
-                    httpx_client=httpx_client, agent_card=card
+                    httpx_client=httpx_client, agent_card=AgentCard(**card)
                 )
             elif url:
                 client = A2AClient(
@@ -392,7 +394,7 @@ class Agent:
         async with httpx.AsyncClient() as httpx_client:
             if card:
                 client = A2AClient(
-                    httpx_client=httpx_client, agent_card=card
+                    httpx_client=httpx_client, agent_card=AgentCard(**card)
                 )
             elif url:
                 client = A2AClient(
@@ -414,70 +416,17 @@ class Agent:
             request = self.marshall_A2A_client_message(response_text)
             
             return request
-    
-    async def test_A2A_client(self, message: str, card=None, url=None) -> None:
-        """
-        Tests the A2A client by contacting the A2A server and connecting to it.
-        """
 
-        async with httpx.AsyncClient() as httpx_client:
-            if card:
-                client = A2AClient(
-                    httpx_client=httpx_client, agent_card=card
-                )
-            elif url:
-                client = A2AClient(
-                    httpx_client=httpx_client, url=url
-                )
-            else:
-                raise ValueError("Either card or url must be provided to initialize the A2A client.")
-            
-            logger.log("A2A_CLIENT", f"Client initialized with agent card: {client.url}")
-            send_message_payload: dict[str, Any] = {
-                'message': {
-                    'role': 'user',
-                    'parts': [
-                        {'kind': 'text', 'text': message}
-                    ],
-                    'messageId': uuid4().hex,
-                },
-            }
-            request = SendMessageRequest(
-                params=MessageSendParams(**send_message_payload)
-            )
-
-            response = await client.send_message(request)
-            # print(response)
-            return response.model_dump(mode='json', exclude_none=True)['result']['parts'][0]['text']
-
-    def start_A2A_Server(self, port: int):
+    def start_A2A_Server(self, card: AgentCard, port: int):
         """
         Starts the A2A server for the agent.
         """
         def run():
             logger.log("A2A_SERVER", "Starting A2A server...")
-            skill = AgentSkill(
-                id='hello_world',
-                name='Returns hello world',
-                description='just returns hello world',
-                tags=['hello world'],
-                examples=['hi', 'hello world'],
-            )
-
+        
             # This will be the public-facing agent card
-            public_agent_card = AgentCard(
-                name='Hello World Agent',
-                description='Just a hello world agent',
-                url=f'http://localhost:{port}/',
-                version='1.0.0',
-                defaultInputModes=['text'],
-                defaultOutputModes=['text'],
-                capabilities=AgentCapabilities(streaming=True),
-                skills=[skill],  # Only the basic skill for the public card
-                supportsAuthenticatedExtendedCard=False,
-            )
+            public_agent_card = card
 
-            # TODO: handle initiating/receiving agent flag within the SAGAAGentExecutor
             request_handler = DefaultRequestHandler(
                 agent_executor=SAGAAgentExecutor(
                     local_agent=self.local_agent
@@ -755,8 +704,6 @@ class Agent:
         Returns:
             bool: True if the task is finished, False otherwise.
         """
-        print(message)
-        print(type(message))
         message = ast.literal_eval(message)
         return message['params']['message']['parts'][0]['text'] == self.local_agent.task_finished_token
         
@@ -871,7 +818,8 @@ class Agent:
             # Deliver the message to the A2A server stub:
             text = asyncio.run(self.deliver_A2A_response(
                 send_a2a_response=received_message, 
-                url=f"http://localhost:{self.a2a_port}/"
+                card=self.my_a2a_card
+                #url=f"http://localhost:{self.a2a_port}/"
             ))
             logger.log("A2A_SERVER", f": replied '{text}'")
             # agent_instance, text = self.local_agent.run(received_message, initiating_agent=True, agent_instance=agent_instance)
@@ -953,7 +901,8 @@ class Agent:
                     received_message = {}
             response = asyncio.run(self.deliver_A2A_message(
                 send_a2a_message=received_message, 
-                url=f"http://localhost:{self.a2a_port}/"
+                card=self.my_a2a_card
+                # url=f"http://localhost:{self.a2a_port}/"
             ))
             logger.log("A2A_SERVER", f": replied '{response}'")
             # agent_instance, response = self.local_agent.run(query=received_message, initiating_agent=False, agent_instance=agent_instance)
@@ -995,8 +944,6 @@ class Agent:
             r_aid: The AID of the receiving agent.
             message: The initial message to send to the receiving agent.
         """
-
-        self.start_A2A_Server(self.a2a_port)
 
         # Fetch the recv agent's card:
         self.rcv_a2a_card = asyncio.run(self.fetch_A2A_agent_card('http://localhost:9999'))
@@ -1067,12 +1014,14 @@ class Agent:
         r_device = r_agent_material.get("device")
         r_ip = r_agent_material.get("IP")
         r_port = r_agent_material.get("port")
+        r_a2a_card = r_agent_material.get("a2a_card", None)
 
         dev_network_info = {
             "aid": r_aid, 
             "device": r_device, 
             "IP": r_ip, 
-            "port": r_port
+            "port": r_port,
+            "a2a_card": r_a2a_card
         }
 
         r_agent_pac_bytes = r_agent_material.get("pac", None)
@@ -1140,6 +1089,7 @@ class Agent:
                     
                     request_dict['card'] = self.card                    
                     request_dict['stamp'] = self.stamp
+                    request_dict['a2a_card'] = self.my_a2a_card
 
                     # If there is no active token for contacting r_aid:
                     if token is None:
@@ -1278,6 +1228,7 @@ class Agent:
                         i_card = received_msg.get("card", None)
                         #i_card = self.deserialize(i_card)
                         i_aid = i_card.get("aid", None)
+                        i_a2a_card = received_msg.get("a2a_card", None)
 
                         # Check that the agent 
 
@@ -1352,7 +1303,8 @@ class Agent:
                             "aid": i_aid, 
                             "device": i_device, 
                             "IP": i_ip, 
-                            "port": i_port
+                            "port": i_port,
+                            "a2a_card": i_a2a_card
                         }
 
                         i_agent_pac_bytes = i_agent_material.get("pac", None)
@@ -1489,7 +1441,7 @@ class Agent:
         Listens for incoming TLS connections, handles Ctrl+C gracefully,
         and ensures proper socket closure on shutdown.
         """
-        self.start_A2A_Server(self.a2a_port)
+        
         # Create SSL context for the server
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1 | ssl.OP_NO_TLSv1_2  # TLS 1.3 only

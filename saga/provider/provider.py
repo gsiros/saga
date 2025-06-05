@@ -244,6 +244,7 @@ class Provider:
             device = application.get("device")
             ip = application.get("IP")
             port = application.get("port")
+            a2a_card = application.get("a2a_card", None)
 
             # Ensure that IP+port is unique:
             existing = self.agents_collection.find_one({
@@ -264,7 +265,8 @@ class Provider:
                 "aid": aid, 
                 "device": device, 
                 "IP": ip, 
-                "port": port
+                "port": port,
+                "a2a_card": a2a_card
             }
             
             # Get the agent certificate:
@@ -382,7 +384,9 @@ class Provider:
                 "agent_sig": agent_sig_bytes,
                 "one_time_key_sigs": otk_sigs_bytes,
                 # Budget Counter:
-                "counter": []
+                "counter": [],
+                # A2A card:
+                "a2a_card": a2a_card,
             })
             # Pop the JWT from the user's record so that it cannot be reused for other purposes.
             self.users_collection.update_one({"uid": uid}, {"$pull": {"auth_tokens": {"token": user_jwt}}})

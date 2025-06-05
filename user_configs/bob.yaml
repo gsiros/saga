@@ -28,3 +28,34 @@ agents:
         - calendar
       model_type: null
       api_base: null
+    a2a_card: {
+      "capabilities": {
+          "streaming": false
+      },
+      "defaultInputModes": [
+          "text"
+      ],
+      "defaultOutputModes": [
+          "text"
+      ],
+      "description": "Dummy agent for protocol testing.",
+      "name": "Bob's Dummy Agent",
+      "skills": [
+          {
+              "description": "yaps so that you can test the protocol",
+              "examples": [
+                  "hi",
+                  "Do you think we are alone in this world?",
+                  "I do not know"
+              ],
+              "id": "dummy_agent",
+              "name": "Replies to your yapping",
+              "tags": [
+                  "dummy"
+              ]
+          }
+      ],
+      "supportsAuthenticatedExtendedCard": false,
+      "url": "http://localhost:9999/",
+      "version": "1.0.0"
+    }

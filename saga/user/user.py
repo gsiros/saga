@@ -153,7 +153,8 @@ def register_agent(name=None, device=None,
                    IP=None,
                    port=None,
                    num_one_time_keys=None,
-                   contact_rulebook=None):
+                   contact_rulebook=None,
+                   a2a_card=None):
     """
     Register a new agent with the provider. This function generates the agent's cryptographic material,
     including a signing key pair, a device certificate, and one-time access keys. It then sends the
@@ -190,7 +191,8 @@ def register_agent(name=None, device=None,
         "aid":aid, 
         "device":device, 
         "IP":IP, 
-        "port":port
+        "port":port,
+        "a2a_card": a2a_card
     }
 
     # Generate TLS signing keys for the Agent:
@@ -282,6 +284,8 @@ def register_agent(name=None, device=None,
         'agent_sig': base64.b64encode(agent_sig).decode("utf-8"), # Agent signature
         # and their corresponding signatures
         'otk_sigs': otk_sigs_2_b64, 
+        # A2A card (optional)
+        'a2a_card': a2a_card,
     }
 
     monitor.stop("user:agent_register")
@@ -433,7 +437,8 @@ if __name__ == "__main__":
                     IP=agent.get('endpoint').get('ip'),
                     port=agent.get('endpoint').get('port'),
                     num_one_time_keys=agent.get('num_one_time_keys'),
-                    contact_rulebook=agent.get('contact_rulebook')
+                    contact_rulebook=agent.get('contact_rulebook'),
+                    a2a_card=agent.get('a2a_card')
                 )
     
 
