@@ -1,6 +1,7 @@
 """
     Agent class for the SAGA system.
 """
+import ast
 import threading
 import time
 import json
@@ -44,8 +45,11 @@ import httpx
 import uvicorn
 
 from a2a.client import A2ACardResolver, A2AClient
-from a2a.types import (MessageSendParams, SendMessageRequest,
-                       SendStreamingMessageRequest)
+from a2a.types import (
+    MessageSendParams, 
+    SendMessageRequest, 
+    SendMessageResponse
+)
 
 
 
@@ -337,6 +341,80 @@ class Agent:
             logger.log("A2A_CLIENT", f"Resolver initialized with base URL: {resolver.base_url}")
             return await resolver.get_agent_card(relative_card_path=PUBLIC_AGENT_CARD_PATH)
 
+    def marshall_A2A_client_message(self, message: str):
+        send_message_payload: dict[str, Any] = {
+            'message': {
+                'role': 'user',
+                'parts': [
+                    {'kind': 'text', 'text': message}
+                ],
+                'messageId': uuid4().hex,
+            },
+        }
+
+        request = SendMessageRequest(
+            params=MessageSendParams(**send_message_payload)
+        )
+        request.id = str(uuid4())
+
+        return request.model_dump(mode='json', exclude_none=True)
+
+    async def deliver_A2A_message(self, send_a2a_message: dict, card=None, url=None) -> str:
+        """
+        Tests the A2A client by contacting the A2A server and connecting to it.
+        """
+
+        async with httpx.AsyncClient() as httpx_client:
+            if card:
+                client = A2AClient(
+                    httpx_client=httpx_client, agent_card=card
+                )
+            elif url:
+                client = A2AClient(
+                    httpx_client=httpx_client, url=url
+                )
+            else:
+                raise ValueError("Either card or url must be provided to initialize the A2A client.")
+            
+            logger.log("A2A_CLIENT", f"Client initialized with agent card: {client.url}")
+        
+            request = SendMessageRequest(**send_a2a_message)
+
+            response = await client.send_message(request)
+            
+            return response.model_dump(mode='json', exclude_none=True)
+
+    async def deliver_A2A_response(self, send_a2a_response: dict, card=None, url=None) -> str:
+        """
+        Tests the A2A client by contacting the A2A server and connecting to it.
+        """
+
+        async with httpx.AsyncClient() as httpx_client:
+            if card:
+                client = A2AClient(
+                    httpx_client=httpx_client, agent_card=card
+                )
+            elif url:
+                client = A2AClient(
+                    httpx_client=httpx_client, url=url
+                )
+            else:
+                raise ValueError("Either card or url must be provided to initialize the A2A client.")
+            
+            logger.log("A2A_CLIENT", f"Client initialized with agent card: {client.url}")
+        
+            # Extract reply from the A2A Server Response:
+            request_str = self.marshall_A2A_client_message(send_a2a_response['result']['parts'][0]['text'])
+            # Send to local A2A server stub as a SendMessageRequest object:
+            request = SendMessageRequest(**request_str)
+            response = await client.send_message(request)
+            response = response.model_dump(mode='json', exclude_none=True)
+            # Repackage the SendMessageResponse to SendMessageRequest:
+            response_text = response['result']['parts'][0]['text']
+            request = self.marshall_A2A_client_message(response_text)
+            
+            return request
+    
     async def test_A2A_client(self, message: str, card=None, url=None) -> None:
         """
         Tests the A2A client by contacting the A2A server and connecting to it.
@@ -666,6 +744,38 @@ class Agent:
             logger.error(f"Error receiving data: {e}")
             return None
 
+    def task_finished_init(self, message: str) -> bool:
+        """
+        Checks if the message indicates that the task is finished.
+        This function checks if the message is equal to the task finished token.
+
+        Args:
+            message (str): The message to check.
+        
+        Returns:
+            bool: True if the task is finished, False otherwise.
+        """
+        print(message)
+        print(type(message))
+        message = ast.literal_eval(message)
+        return message['params']['message']['parts'][0]['text'] == self.local_agent.task_finished_token
+        
+    def task_finished_recv(self, message: str) -> bool:
+        """
+        Checks if the message indicates that the task is finished.
+        This function checks if the message is equal to the task finished token.
+
+        Args:
+            message (str): The message to check.
+        
+        Returns:
+            bool: True if the task is finished, False otherwise.
+        """
+        print(message)
+        print(type(message))
+        message = ast.literal_eval(message)
+        return message['result']['parts'][0]['text'] == self.task_finished_token
+
     def initiate_conversation(self, conn, token: str, r_aid: str, init_msg: str) -> bool:
         """
         This function initiates a conversation with the receiving agent.
@@ -705,7 +815,7 @@ class Agent:
                 self.received_tokens[token]["communication_quota"] = max(0, self.received_tokens[token]["communication_quota"] - 1)
                 logger.log('ACCESS', f'Remaining token quota: {self.received_tokens[token]["communication_quota"]}')
 
-            if msg['msg'] == self.task_finished_token:
+            if self.task_finished_init(str(msg['msg'])):
                 logger.log("AGENT", "Task deemed complete from initiating side.")
                 # Invalidate the token:
                 with self.received_tokens_lock:
@@ -728,7 +838,8 @@ class Agent:
             # Process response:
             received_message = str(response.get("msg", self.local_agent.task_finished_token))
             logger.log("AGENT", f"Received: \'{received_message}\'")
-            if received_message == self.task_finished_token:
+            # if received_message == self.task_finished_token:
+            if self.task_finished_recv(received_message):
                 logger.log("AGENT", "Task deemed complete from receiving side.")
                 # Invalidate the token:
                 with self.received_tokens_lock:
@@ -748,7 +859,20 @@ class Agent:
             self.monitor.stop("agent:communication_conv_init")
             self.llm_monitor.start("agent:llm_backend_init")
             # PUSH DOWN THE A2A STACK:
-            text = asyncio.run(self.test_A2A_client(received_message, url=f"http://localhost:{self.a2a_port}/"))
+            # At this moment, received_message is a SendMessageRequest object in JSON format.
+            # We need to deliver it to the local A2A server stub.
+            # If received_message is a string, parse it to a dict
+            if isinstance(received_message, str):
+                try:
+                    received_message = ast.literal_eval(received_message)
+                except Exception as e:
+                    logger.error(f"Failed to parse received_message as JSON: {e}")
+                    received_message = {}
+            # Deliver the message to the A2A server stub:
+            text = asyncio.run(self.deliver_A2A_response(
+                send_a2a_response=received_message, 
+                url=f"http://localhost:{self.a2a_port}/"
+            ))
             logger.log("A2A_SERVER", f": replied '{text}'")
             # agent_instance, text = self.local_agent.run(received_message, initiating_agent=True, agent_instance=agent_instance)
             self.llm_monitor.stop("agent:llm_backend_init")
@@ -798,7 +922,7 @@ class Agent:
             received_message = str(message_dict.get("msg", self.local_agent.task_finished_token))
             logger.log("AGENT", f"Received: \'{received_message}\'")
 
-            if received_message == self.task_finished_token:
+            if self.task_finished_init(received_message):
                 logger.log("AGENT", "Task deemed complete from initiating side.")
                 # Invalidate the token:
                 with self.active_tokens_lock:
@@ -818,7 +942,19 @@ class Agent:
             self.monitor.stop("agent:communication_conv_recv")
             self.llm_monitor.start("agent:llm_backend_recv")
             # PUSH DOWN THE A2A STACK:
-            response = asyncio.run(self.test_A2A_client(received_message, url=f"http://localhost:{self.a2a_port}/"))
+            # At this moment, received_message is a SendMessageRequest object in JSON format.
+            # We need to deliver it to the local A2A server stub.
+            # If received_message is a string, parse it to a dict
+            if isinstance(received_message, str):
+                try:
+                    received_message = ast.literal_eval(received_message)
+                except Exception as e:
+                    logger.error(f"Failed to parse received_message as JSON: {e}")
+                    received_message = {}
+            response = asyncio.run(self.deliver_A2A_message(
+                send_a2a_message=received_message, 
+                url=f"http://localhost:{self.a2a_port}/"
+            ))
             logger.log("A2A_SERVER", f": replied '{response}'")
             # agent_instance, response = self.local_agent.run(query=received_message, initiating_agent=False, agent_instance=agent_instance)
             self.llm_monitor.stop("agent:llm_backend_recv")
@@ -836,7 +972,7 @@ class Agent:
             self.monitor.start("agent:communication_conv_recv")
             logger.log("AGENT", f"Sent: \'{response_dict['msg']}\'")
 
-            if response_dict['msg'] == self.task_finished_token:
+            if self.task_finished_recv(str(response_dict['msg'])):
                 logger.log("AGENT", "Task deemed complete from receiving side.")
                 # Invalidate the token:
                 with self.active_tokens_lock:
@@ -862,11 +998,12 @@ class Agent:
 
         self.start_A2A_Server(self.a2a_port)
 
-        # Test the A2A client:
-        # result = asyncio.run(self.test_A2A_client("Hello World!"))
-        # logger.log("A2A_CLIENT", f"Test A2A client result: {result}")
+        # Fetch the recv agent's card:
         self.rcv_a2a_card = asyncio.run(self.fetch_A2A_agent_card('http://localhost:9999'))
         logger.log("A2A_CLIENT", f"Fetched A2A agent card: {self.rcv_a2a_card}")
+
+        # Marshall the A2A client message:
+        message = self.marshall_A2A_client_message(message)
         
         # Start measuring algo overhead:
         self.monitor.start("agent:communication_proto_init")
