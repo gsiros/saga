@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>saga.provider.provider API documentation</title>
+<meta name="description" content="Provider for SAGA agents that handles user registration, authentication, and certificate management.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>saga.provider.provider</code></h1>
+</header>
+<section id="section-intro">
+<p>Provider for SAGA agents that handles user registration, authentication, and certificate management.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="saga.provider.provider.Provider"><code class="flex name class">
+<span>class <span class="ident">Provider</span></span>
+<span>(</span><span>workdir,<br>name: str,<br>host: str = '0.0.0.0',<br>port: int = 5000,<br>mongo_uri: str = 'mongodb://localhost:27017/saga',<br>jwt_secret: str = 'supersecretkey')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Provider:
+    &#34;&#34;&#34;
+    Provider class for SAGA agents.
+    &#34;&#34;&#34;
+    def __init__(
+            self,
+            workdir,
+            name: str,
+            host: str=&#34;0.0.0.0&#34;, 
+            port: int=5000, 
+            mongo_uri: str=&#34;mongodb://localhost:27017/saga&#34;, 
+            jwt_secret: str=&#34;supersecretkey&#34;
+        ):
+        &#34;&#34;&#34;
+        Initializes the Provider with MongoDB, JWT, and OAuth configuration.
+
+        Args:
+            workdir: Directory where the provider will store its data.
+            name (str): Name of the provider.
+            host (str): Host address for the Flask app.
+            port (int): Port for the Flask app.
+            mongo_uri (str): MongoDB URI for the provider&#39;s database.
+            jwt_secret (str): Secret key for JWT authentication.
+        &#34;&#34;&#34;
+
+        self.workdir = workdir if workdir[-1] == &#39;/&#39; else workdir+&#39;/&#39;
+        if not os.path.exists(self.workdir):
+            os.mkdir(self.workdir)
+        self.name = name
+        self.app = Flask(__name__)
+        self.app.config[&#34;MONGO_URI&#34;] = mongo_uri
+        self.app.config[&#34;JWT_SECRET_KEY&#34;] = jwt_secret
+
+        # Initialize MongoDB, JWT, and Bcrypt
+        self.mongo = PyMongo(self.app)
+        self.jwt = JWTManager(self.app)
+        self.bcrypt = Bcrypt(self.app)
+
+        self.active_jwt_tokens = []
+
+        # MongoDB Collections
+        self.users_collection = self.mongo.db.users
+        self.agents_collection = self.mongo.db.agents
+
+        # Load CA object for certificate signing:
+        self.CA = get_SAGA_CA()
+
+        # Load TLS signing keys:
+        if not (os.path.exists(self.workdir+f&#34;{self.name}.key&#34;) and os.path.exists(self.workdir+f&#34;{self.name}.pub&#34;) and os.path.exists(self.workdir+f&#34;{self.name}.crt&#34;)):
+            # Generate cryptographic material for signing. 
+            self.SK_Prov, self.PK_Prov = sc.generate_ed25519_keypair()
+            self.cert = self.CA.sign(self.PK_Prov, config=saga.config.PROVIDER_CONFIG[&#39;config&#39;])
+            sc.save_ed25519_keys(self.workdir+f&#34;{self.name}&#34;, self.SK_Prov, self.PK_Prov)
+            sc.save_x509_certificate(self.workdir+f&#34;{self.name}&#34;, self.cert)
+        else:
+            self.SK_Prov, self.PK_Prov = sc.load_ed25519_keys(self.workdir+f&#34;{self.name}&#34;)
+            self.cert = sc.load_x509_certificate(self.workdir+f&#34;{self.name}.crt&#34;)
+        self.ssl_context = (self.workdir+f&#34;{self.name}.crt&#34;, self.workdir+f&#34;{self.name}.key&#34;)
+
+        # Register routes
+        self._register_routes()
+
+        # Web server settings
+        self.host = host
+        self.port = port
+
+        self.monitor = Monitor()
+
+    def _register_routes(self):
+        &#34;&#34;&#34;Registers all Flask routes for the provider.&#34;&#34;&#34;
+
+        @self.app.route(&#39;/&#39;)
+        def index():
+            return &#34;&lt;h1&gt;Hello, World!&lt;/h1&gt;&#34;
+
+        @self.app.route(&#39;/certificate&#39;, methods=[&#39;GET&#39;])
+        def certificate():
+            return jsonify({&#34;certificate&#34;: base64.b64encode(self.cert.public_bytes(
+                sc.serialization.Encoding.PEM
+            )).decode(&#34;utf-8&#34;)}), 200
+
+        @self.app.route(&#39;/register&#39;, methods=[&#39;POST&#39;])
+        def register():
+            &#34;&#34;&#34;
+            This endpoint is used by the user to register with the provider. The user must
+            provide their desired UID (public) and password (private). The user must also 
+            provide their public identity key for signing. 
+            &#34;&#34;&#34;
+            self.monitor.start(&#34;provider:user_register&#34;)
+            # Retrieve the user&#39;s uid and password from the request body.
+            data = request.json
+            uid = data.get(&#34;uid&#34;)
+            password = data.get(&#34;password&#34;)
+
+            if self.users_collection.find_one({&#34;uid&#34;: uid}):
+                logger.error(f&#34;User {uid} already exists.&#34;)
+                return jsonify({&#34;message&#34;: &#34;User already exists&#34;}), 400
+
+            # Store password hash and identity key in the database.
+            hashed_pw = self.bcrypt.generate_password_hash(password).decode(&#34;utf-8&#34;)
+            # Get the user certificate:
+            crt_u_bytes = base64.b64decode(data.get(&#34;crt_u&#34;))
+            crt_u = sc.bytesToX509Certificate(crt_u_bytes)
+            # Verify the user&#39;s certificate:
+            try:
+                self.CA.verify(crt_u)
+            except:
+                logger.error(f&#34;Invalid user certificate.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Invalid user certificate&#34;}), 401
+
+            self.users_collection.insert_one({
+                &#34;uid&#34;: uid,
+                &#34;password&#34;: hashed_pw,
+                &#34;crt_u&#34;: crt_u_bytes,
+                &#34;auth_tokens&#34;: []
+            })
+
+            self.monitor.stop(&#34;provider:user_register&#34;)
+            logger.log(&#34;OVERHEAD&#34;, f&#34;provider:user_register: {self.monitor.elapsed(&#39;provider:user_register&#39;)}&#34;)
+            return jsonify({&#34;message&#34;: &#34;User registered successfully&#34;}), 201
+
+        @self.app.route(&#39;/login&#39;, methods=[&#39;POST&#39;])
+        def login():
+            &#34;&#34;&#34;
+            This endpoint is used by the user to login. The user must provide their UID
+            and password in the request body. If the credentials are valid, the user will
+            receive an access token that can be used to authenticate future requests.
+
+            The access token is valid for 24 hours.
+            &#34;&#34;&#34;
+            # Retrieve the user&#39;s uid and password from the request body.
+            self.monitor.start(&#34;provider:user_login&#34;)
+            data = request.json
+            uid = data.get(&#34;uid&#34;)
+            password = data.get(&#34;password&#34;)
+
+            # Check if the user exists and the password is correct.
+            user = self.users_collection.find_one({&#34;uid&#34;: uid})
+            if user and self.bcrypt.check_password_hash(user[&#34;password&#34;], password):
+                access_token = create_access_token(identity=user[&#34;uid&#34;])
+                self.users_collection.update_one({&#34;uid&#34;: uid}, {&#34;$push&#34;: {&#34;auth_tokens&#34;: {
+                    &#34;token&#34;: access_token,
+                    &#34;exp&#34;: (datetime.now(timezone.utc) + timedelta(days=1)).replace(tzinfo=timezone.utc)
+                }}})
+                logger.log(&#34;PROVIDER&#34;, f&#34;User {uid} logged in successfully.&#34;)
+                self.monitor.stop(&#34;provider:user_login&#34;)
+                logger.log(&#34;OVERHEAD&#34;, f&#34;provider:user_login: {self.monitor.elapsed(&#39;provider:user_login&#39;)}&#34;)
+                return jsonify({&#34;access_token&#34;: access_token}), 200
+            
+            logger.error(f&#34;Invalid credentials for user {uid}.&#34;)
+            self.monitor.stop(&#34;provider:user_login&#34;)
+            logger.log(&#34;OVERHEAD&#34;, f&#34;provider:user_login: {self.monitor.elapsed(&#39;provider:user_login&#39;)}&#34;)
+            return jsonify({&#34;message&#34;: &#34;Invalid credentials&#34;}), 401
+
+        @self.app.route(&#39;/register_agent&#39;, methods=[&#39;POST&#39;])
+        def register_agent():
+            &#34;&#34;&#34;
+            This endpoint is used by the user to register a new agent. The user must provide
+            the agent&#39;s cryptographic material, including the agent&#39;s public access control 
+            key, public signing key, and one-time keys. The user must also provide
+            the agent&#39;s device information, including the device name, IP address, and port.
+
+            The user must also provide the agent&#39;s certificate, signed by a CA. The user must
+            also provide the signatures of the agent&#39;s information and cryptographic material,
+            and the signatures of the one-time keys.
+
+            The user MUST be authenticated to register an agent. The user must provide their
+            UID and a valid JWT in the request body.
+
+            &#34;&#34;&#34;
+            self.monitor.start(&#34;provider:agent_register&#34;)
+            # Retrieve the user&#39;s uid and JWT from the request body.
+            data = request.json
+            uid = data.get(&#34;uid&#34;)
+            user_jwt = data.get(&#34;jwt&#34;)
+
+            # Validate user
+            user = self.users_collection.find_one({&#34;uid&#34;: uid})
+            if not user:
+                logger.error(f&#34;User {uid} not found.&#34;)
+                return jsonify({&#34;message&#34;: &#34;User not found&#34;}), 404
+            
+            # Make sure that the user has been recently authenticated
+            usr_record = self.users_collection.find_one({&#34;uid&#34;: uid, &#34;auth_tokens.token&#34;: user_jwt})
+            if not usr_record:
+                logger.error(f&#34;User {uid} not authenticated.&#34;)
+                return jsonify({&#34;message&#34;: &#34;User not authenticated&#34;}), 401
+            
+            # Check that the authentication token is valid and not expired
+            now = datetime.now(timezone.utc)
+            exp = usr_record[&#34;auth_tokens&#34;][0][&#34;exp&#34;].replace(tzinfo=timezone.utc)
+            if now &gt; exp:
+                logger.error(f&#34;User {uid} token expired.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Token expired.&#34;}), 401
+
+            # ========================================================================
+            # Start the agent registration processing. At this point, the provider 
+            # collects all the relevant cryptographic material and verifies the
+            # signatures provided by the user. 
+            # ========================================================================
+
+            # Extract the agent&#39;s given aid.
+            application = data.get(&#34;application&#34;)
+            aid = application.get(&#34;aid&#34;)
+            if not aid:
+                logger.error(f&#34;Agent aid not provided.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Agent aid not provided&#34;}), 400
+
+            # Make sure that the aid is in the right format.
+            if not check_aid(aid):
+                logger.error(f&#34;Invalid agent aid format.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Invalid agent aid format&#34;}), 400
+            
+            # Reject if aid is already being used by another agent.
+            if self.agents_collection.find_one({&#34;aid&#34;: aid}):
+                logger.error(f&#34;Agent {aid} already exists.&#34;)
+                return jsonify({&#34;message&#34;: f&#39;Agent &#34;{aid}&#34; already exists.&#39;}), 401
+
+            
+            # Get the agent&#39;s user&#39;s public signing key:
+            crt_u = sc.bytesToX509Certificate(user[&#34;crt_u&#34;])
+            pk_u = crt_u.public_key()
+
+            # Get device and network information.
+            device = application.get(&#34;device&#34;)
+            ip = application.get(&#34;IP&#34;)
+            port = application.get(&#34;port&#34;)
+
+            # Ensure that IP+port is unique:
+            existing = self.agents_collection.find_one({
+                &#34;IP&#34;: ip,
+                &#34;port&#34;: port
+            })
+    
+            if existing is not None:
+                logger.error(f&#34;Address {ip}:{port} is already registered by agent {existing[&#39;aid&#39;]}&#34;)
+                return jsonify({&#34;message&#34;: f&#34;Address {ip}:{port} is already registered by agent {existing[&#39;aid&#39;]}&#34;})
+
+            # Build the device and network information block.
+            # The block includes:
+            # - the aid, 
+            # - device name, 
+            # - IP address and port 
+            dev_network_info = {
+                &#34;aid&#34;: aid, 
+                &#34;device&#34;: device, 
+                &#34;IP&#34;: ip, 
+                &#34;port&#34;: port
+            }
+            
+            # Get the agent certificate:
+            agent_cert_bytes = base64.b64decode(application.get(&#34;agent_cert&#34;))
+            agent_cert = sc.bytesToX509Certificate(agent_cert_bytes)
+
+            # Verify the agent&#39;s certificate:
+            try:
+                self.CA.verify(agent_cert)
+            except:
+                logger.error(f&#34;Invalid agent certificate.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Invalid agent certificate&#34;}), 401
+            # Extract the aagent&#39;s public signing key 
+            pk_a_bytes = agent_cert.public_key().public_bytes(
+                encoding=sc.serialization.Encoding.Raw,
+                format=sc.serialization.PublicFormat.Raw
+            ) 
+            
+            # Get the agent&#39;s long term access control key:
+            pac = application.get(&#34;pac&#34;)
+            pac_bytes = base64.b64decode(application.get(&#34;pac&#34;))
+                
+            # Build the agent cryptographic information block:
+            crypto_info = {
+                &#34;pk_a&#34;: pk_a_bytes,
+                &#34;pac&#34;: pac_bytes,
+                &#34;pk_prov&#34;: self.PK_Prov.public_bytes(
+                    encoding=sc.serialization.Encoding.Raw,
+                    format=sc.serialization.PublicFormat.Raw
+                )
+            }
+
+            # Verify the agent&#39;s signature using the user&#39;s public signing key:
+            block = {}
+            block.update(dev_network_info)
+            block.update(crypto_info)
+            agent_sig_bytes = base64.b64decode(application.get(&#34;agent_sig&#34;))
+            try:
+                pk_u.verify(
+                    agent_sig_bytes,
+                    str(block).encode(&#34;utf-8&#34;)
+                )
+            except:
+                logger.error(f&#34;Invalid agent signature.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Invalid agent signature&#34;}), 401
+            
+            # Extract the one-time keys.
+            otks = application.get(&#34;otks&#34;)
+            otks_bytes = [base64.b64decode(otk) for otk in otks]
+            # Extract their signatures:
+            otk_sigs = application.get(&#34;otk_sigs&#34;)
+            otk_sigs_bytes = [base64.b64decode(sig) for sig in otk_sigs]
+            # Verify the signatures of the one-time keys using the user&#39;s public signing key:
+            for i, otk in enumerate(otks_bytes):
+                try:
+                    pk_u.verify(
+                        otk_sigs_bytes[i],
+                        otk
+                    )
+                except:
+                    logger.error(f&#34;Invalid one-time key signature.&#34;)
+                    return jsonify({&#34;message&#34;: &#34;Invalid one-time key signature&#34;}), 401
+            
+            # Check if any of the keys are being reused:
+            if self.agents_collection.find_one({&#34;agent_cert&#34;: agent_cert_bytes}):
+                logger.error(f&#34;Agent certificate already in use.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Agent certificate already in use&#34;}), 401
+            if self.agents_collection.find_one({&#34;pac&#34;: pac_bytes}):
+                logger.error(f&#34;Access control key already in use.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Access control key already in use&#34;}), 401
+            for otk in otks_bytes:
+                if self.agents_collection.find_one({&#34;one_time_keys&#34;: {&#34;$elemMatch&#34;: {&#34;$eq&#34;: otk}}}):
+                    logger.error(f&#34;One-time key already in use.&#34;)
+                    return jsonify({&#34;message&#34;: &#34;One-time key already in use&#34;}), 401
+
+            # Check the agent&#39;s contact rulebook:
+            contact_rulebook = application.get(&#34;contact_rulebook&#34;, [])
+            # Check if the rulebook is in the correct format.
+            if not check_rulebook(contact_rulebook):
+                return jsonify({&#34;message&#34;: &#34;Invalid contact rulebook format&#34;}), 400
+
+            # ========================================================================
+            # At this stage, all required checks have been completed. The provider 
+            # can now store the agent&#39;s cryptographic material in the database. 
+            # ========================================================================
+
+            # Define the agent &#34;card&#34;:
+            card = {
+                &#34;aid&#34;: aid,
+                &#34;device&#34;: device,
+                &#34;IP&#34;: ip,
+                &#34;port&#34;: port,
+                &#34;agent_cert&#34;: agent_cert_bytes,
+                &#34;pac&#34;: pac_bytes,
+                &#34;agent_sig&#34;: agent_sig_bytes
+            }
+
+            # Sign the agent card using the provider&#39;s private key:
+            card_bytes = str(card).encode(&#34;utf-8&#34;)
+            stamp = self.SK_Prov.sign(card_bytes) # universal stamp 
+            # Convert signagure to bytes:
+            stamp_bytes = base64.b64encode(stamp).decode(&#34;utf-8&#34;)
+
+            self.agents_collection.insert_one({
+                &#34;aid&#34;: aid,
+                &#34;device&#34;: device,
+                &#34;IP&#34;: ip,
+                &#34;port&#34;: port,
+                &#34;agent_cert&#34;: agent_cert_bytes,
+                &#34;pac&#34;: pac_bytes,
+                &#34;one_time_keys&#34;: otks_bytes,
+                # Contact rulebook:
+                &#34;contact_rulebook&#34;: contact_rulebook,
+                # Signatures:
+                &#34;agent_sig&#34;: agent_sig_bytes,
+                &#34;one_time_key_sigs&#34;: otk_sigs_bytes,
+                # Budget Counter:
+                &#34;counter&#34;: []
+            })
+            # Pop the JWT from the user&#39;s record so that it cannot be reused for other purposes.
+            self.users_collection.update_one({&#34;uid&#34;: uid}, {&#34;$pull&#34;: {&#34;auth_tokens&#34;: {&#34;token&#34;: user_jwt}}})
+            logger.log(&#34;PROVIDER&#34;, f&#34;Agent {aid} registered successfully.&#34;)
+            self.monitor.stop(&#34;provider:agent_register&#34;)
+            logger.log(&#34;OVERHEAD&#34;, f&#34;provider:agent_register: {self.monitor.elapsed(&#39;provider:agent_register&#39;)}&#34;)
+            return jsonify({&#34;message&#34;: &#34;Agent registered successfully&#34;, &#34;stamp&#34;: stamp_bytes}), 201
+
+        @self.app.route(&#39;/access&#39;, methods=[&#39;POST&#39;])
+        def access():
+            &#34;&#34;&#34;
+            This endpoint is used by the initiating agent to request a one-time key
+            from the provider in order to receive an access control token from the
+            receiving agent.
+
+            The request should include the target agent ID (t_aid) in the request body.
+
+            The response will include the one-time key and the user&#39;s identity key
+            along with all other relevant cryptographic material of the receiving agent.
+            &#34;&#34;&#34;
+            # Start stopwatch
+            self.monitor.start(&#34;provider:access&#34;)
+            # Convert PEM format string to bytes            
+            i_aid_cert_bytes = request.environ.get(&#39;SSL_CLIENT_CERT&#39;).encode(&#39;utf-8&#39;)  # Extracts iniating agents&#39;s certificate
+        
+
+            data = request.json
+            i_aid = data.get(&#34;i_aid&#34;, None) # the initiating agent
+            t_aid = data.get(&#34;t_aid&#34;, None) # the receiving agent
+            if not check_aid(t_aid):
+                logger.error(f&#34;Invalid agent ID format.&#34;)
+                return jsonify({&#34;message&#34;:f&#34;Invalid agent ID: {t_aid} format.&#34;}), 400
+            if not check_aid(i_aid):
+                logger.error(f&#34;Invalid agent ID format.&#34;)
+                return jsonify({&#34;message&#34;:f&#34;Invalid agent ID: {i_aid} format.&#34;}), 400
+            uid = t_aid.split(&#34;:&#34;)[0]
+
+            # Make sure that the initiating agent is indeed who they claim to be:
+            i_agent_metadata = self.agents_collection.find_one({&#34;aid&#34; : i_aid, &#34;agent_cert&#34;: i_aid_cert_bytes})
+            if i_agent_metadata is None:
+                logger.error(f&#34;ACCESS DENIED. IMPERSONATION.&#34;)
+                return jsonify({&#34;message&#34;:&#34;Agent not found.&#34;}), 403
+
+            user_metadata = self.users_collection.find_one({&#34;uid&#34; : uid})
+            if user_metadata is None:
+                logger.error(f&#34;Cannot find agent owner with uid: {uid}.&#34;)
+                return jsonify({&#34;message&#34;:&#34;Cannot find agent owner.&#34;}), 404
+
+            # CONTACT POLCY ENFORCEMENT:
+            # Get the agent&#39;s contact rulebook:
+            agent_metadata_before = self.agents_collection.find_one({&#34;aid&#34; : t_aid})
+            # Check if the agent is allowed to be contacted by the requesting agent.
+            if agent_metadata_before is None:
+                logger.error(f&#34;Agent {t_aid} not found.&#34;)
+                return jsonify({&#34;message&#34;:&#34;Agent not found.&#34;}), 404
+            # Check if the initiating agent is allowed to be contacted by the requesting agent.
+            contact_rulebook = agent_metadata_before.get(&#34;contact_rulebook&#34;, [])
+            
+            budget = match(contact_rulebook, i_aid)
+            if budget &lt; 0:
+                logger.error(f&#34;Agent {t_aid} has blocklisted Agent {i_aid}.&#34;)
+                return jsonify({&#34;message&#34;:&#34;Access denied.&#34;}), 403
+
+            if budget == 0:
+                logger.error(f&#34;Agent {t_aid} has not added Agent {i_aid} to its contact policy.&#34;)
+                return jsonify({&#34;message&#34;:&#34;Access denied.&#34;}), 403
+
+        
+            # If the budget is greater than 0, the agent is allowed to be contacted.
+            # 1) Ensure the target agent has one time keys available.
+            # 2) Decrease the budget of the initiating agent by 1 (lowest possible is 0).
+            # 3) Pop the last one-time key and its signature from the target agent entry.
+            t_agent_metadata = self.agents_collection.find_one_and_update(
+                {
+                    &#34;aid&#34;: t_aid,
+                    &#34;one_time_keys&#34;: { &#34;$ne&#34;: [] },
+                    &#34;counter&#34;: {
+                        &#34;$not&#34;: {
+                            &#34;$elemMatch&#34;: {
+                                &#34;aid&#34;: i_aid,
+                                &#34;budget&#34;: { &#34;$lte&#34;: 0 }
+                            }
+                        }
+                    }
+                },
+                [
+                    {
+                        &#34;$set&#34;: {
+                            &#34;counter&#34;: {
+                                &#34;$let&#34;: {
+                                    &#34;vars&#34;: {
+                                        &#34;hasEntry&#34;: {
+                                            &#34;$gt&#34;: [
+                                                {
+                                                    &#34;$size&#34;: {
+                                                        &#34;$filter&#34;: {
+                                                            &#34;input&#34;: &#34;$counter&#34;,
+                                                            &#34;cond&#34;: { &#34;$eq&#34;: [ &#34;$$this.aid&#34;, i_aid ] }
+                                                        }
+                                                    }
+                                                },
+                                                0
+                                            ]
+                                        }
+                                    },
+                                    &#34;in&#34;: {
+                                        &#34;$cond&#34;: {
+                                            &#34;if&#34;: &#34;$$hasEntry&#34;,
+                                            &#34;then&#34;: {
+                                                &#34;$map&#34;: {
+                                                    &#34;input&#34;: &#34;$counter&#34;,
+                                                    &#34;as&#34;: &#34;entry&#34;,
+                                                    &#34;in&#34;: {
+                                                        &#34;$cond&#34;: {
+                                                            &#34;if&#34;: { &#34;$eq&#34;: [ &#34;$$entry.aid&#34;, i_aid ] },
+                                                            &#34;then&#34;: {
+                                                                &#34;aid&#34;: &#34;$$entry.aid&#34;,
+                                                                &#34;budget&#34;: {
+                                                                    &#34;$max&#34;: [ 0, { &#34;$subtract&#34;: [ &#34;$$entry.budget&#34;, 1 ] } ]
+                                                                }
+                                                            },
+                                                            &#34;else&#34;: &#34;$$entry&#34;
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            &#34;else&#34;: {
+                                                &#34;$concatArrays&#34;: [
+                                                    &#34;$counter&#34;,
+                                                    # Initialization with budget - 1 because it consumes 
+                                                    # a key from the budget immediately upon creation.
+                                                    [ { &#34;aid&#34;: i_aid, &#34;budget&#34;: budget-1 } ]
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            &#34;one_time_keys&#34;: {
+                                &#34;$cond&#34;: {
+                                    &#34;if&#34;: { &#34;$gt&#34;: [ { &#34;$size&#34;: { &#34;$ifNull&#34;: [&#34;$one_time_keys&#34;, []] } }, 1 ] },
+                                    &#34;then&#34;: {
+                                        &#34;$slice&#34;: [
+                                            &#34;$one_time_keys&#34;,
+                                            0,
+                                            { &#34;$subtract&#34;: [ { &#34;$size&#34;: &#34;$one_time_keys&#34; }, 1 ] }
+                                        ]
+                                    },
+                                    &#34;else&#34;: []
+                                }
+                            },
+                            &#34;one_time_key_sigs&#34;: {
+                                &#34;$cond&#34;: {
+                                    &#34;if&#34;: { &#34;$gt&#34;: [ { &#34;$size&#34;: { &#34;$ifNull&#34;: [&#34;$one_time_key_sigs&#34;, []] } }, 1 ] },
+                                    &#34;then&#34;: {
+                                        &#34;$slice&#34;: [
+                                            &#34;$one_time_key_sigs&#34;,
+                                            0,
+                                            { &#34;$subtract&#34;: [ { &#34;$size&#34;: &#34;$one_time_key_sigs&#34; }, 1 ] }
+                                        ]
+                                    },
+                                    &#34;else&#34;: []
+                                }
+                            }
+                        }
+                    }
+                ],
+                return_document=False
+            )
+    
+
+            # If agent not found or no keys left, return 404
+            if t_agent_metadata is None:
+                logger.error(f&#34;Agent {t_aid} not found or no keys left.&#34;)
+                return jsonify({&#34;message&#34;: &#34;Agent not found or no keys left.&#34;}), 404
+
+            # Include the user&#39;s identity key in the response
+            crt_u_bytes = user_metadata.get(&#34;crt_u&#34;)
+            t_agent_metadata.update({&#34;crt_u&#34;: crt_u_bytes})
+            # Remove the one time keys from the response except the last one:
+            t_agent_metadata[&#39;one_time_keys&#39;] = [t_agent_metadata[&#39;one_time_keys&#39;][-1]]
+            t_agent_metadata[&#39;one_time_key_sigs&#39;] = [t_agent_metadata[&#39;one_time_key_sigs&#39;][-1]]
+            # Remove the contact rulebook from the response
+            t_agent_metadata.pop(&#34;contact_rulebook&#34;, None)
+            t_agent_metadata.pop(&#34;_id&#34;, None)
+            t_agent_metadata.pop(&#34;counter&#34;, None)
+
+            # Stop stopwatch:
+            self.monitor.stop(&#34;provider:access&#34;)
+            logger.log(&#34;OVERHEAD&#34;, f&#34;provider:access: {self.monitor.elapsed(&#39;provider:access&#39;)}&#34;)
+            return jsonify(t_agent_metadata), 200
+    
+    def run(self):
+        &#34;&#34;&#34;Runs the web server.&#34;&#34;&#34;
+         # Set up SSL context with mTLS
+        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        context.load_cert_chain(certfile=self.ssl_context[0], keyfile=self.ssl_context[1])  # Server&#39;s cert and key
+        context.load_verify_locations(cafile=saga.config.CA_WORKDIR+&#34;/ca.crt&#34;)  # CA that issued client certs
+        context.verify_mode = ssl.CERT_REQUIRED  # Force either client (user or agent) to present a valid cert
+        self.app.run(host=self.host, port=self.port, ssl_context=context)</code></pre>
+</details>
+<div class="desc"><p>Provider class for SAGA agents.</p>
+<p>Initializes the Provider with MongoDB, JWT, and OAuth configuration.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>workdir</code></strong></dt>
+<dd>Directory where the provider will store its data.</dd>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the provider.</dd>
+<dt><strong><code>host</code></strong> :&ensp;<code>str</code></dt>
+<dd>Host address for the Flask app.</dd>
+<dt><strong><code>port</code></strong> :&ensp;<code>int</code></dt>
+<dd>Port for the Flask app.</dd>
+<dt><strong><code>mongo_uri</code></strong> :&ensp;<code>str</code></dt>
+<dd>MongoDB URI for the provider's database.</dd>
+<dt><strong><code>jwt_secret</code></strong> :&ensp;<code>str</code></dt>
+<dd>Secret key for JWT authentication.</dd>
+</dl></div>
+<h3>Methods</h3>
+<dl>
+<dt id="saga.provider.provider.Provider.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    &#34;&#34;&#34;Runs the web server.&#34;&#34;&#34;
+     # Set up SSL context with mTLS
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    context.load_cert_chain(certfile=self.ssl_context[0], keyfile=self.ssl_context[1])  # Server&#39;s cert and key
+    context.load_verify_locations(cafile=saga.config.CA_WORKDIR+&#34;/ca.crt&#34;)  # CA that issued client certs
+    context.verify_mode = ssl.CERT_REQUIRED  # Force either client (user or agent) to present a valid cert
+    self.app.run(host=self.host, port=self.port, ssl_context=context)</code></pre>
+</details>
+<div class="desc"><p>Runs the web server.</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="SAGA Home" href="https://gsiros.github.io/saga/">
+<img src="https://raw.githubusercontent.com/gsiros/saga/94f3562b8f9821717bff825aa4111b2ee5cecec5/assets/logo.png" alt="SAGA" width="256">
+</a>
+</header>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="saga.provider" href="index.html">saga.provider</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="saga.provider.provider.Provider" href="#saga.provider.provider.Provider">Provider</a></code></h4>
+<ul class="">
+<li><code><a title="saga.provider.provider.Provider.run" href="#saga.provider.provider.Provider.run">run</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

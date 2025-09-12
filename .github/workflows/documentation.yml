@@ -1,0 +1,46 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+    paths-ignore:
+      - 'docs/**'  # Ignore changes to 'docs/' directory
+permissions:
+  contents: write
+
+jobs:
+  build-documentation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'  # Specify your Python version
+
+      - name: Install pdoc
+        run: pip install pdoc3  # Install pdoc or pdoc3
+    
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Generate Documentation
+        run: |
+          rm -r docs/
+          pdoc --force --template-dir templates -o docs --html saga
+          mv docs/saga/* docs/
+          rm -r docs/saga
+
+      - name: Commit and Push Documentation
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions"
+          git add docs/
+          git commit -m "Update documentation" -a || exit 0  # Exit if nothing to commit
+          git push
