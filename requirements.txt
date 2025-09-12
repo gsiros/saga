@@ -1,1 +1,6 @@
 smolagents>=1.11.0
+flask>=3.1.0
+flask_bcrypt>=1.0.1
+flask_jwt_extended>=4.7.1
+flask_pymongo>=3.0.1
+git+https://github.com/lebrice/SimpleParsing.git
