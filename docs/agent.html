@@ -1654,7 +1654,7 @@ The token contains the following information:
 </dl></div>
 </dd>
 <dt id="saga.agent.Agent.get_provider_cert"><code class="name flex">
-<span>def <span class="ident">get_provider_cert</span></span>(<span>self) ‑> cryptography.x509.base.Certificate</span>
+<span>def <span class="ident">get_provider_cert</span></span>(<span>self) ‑> cryptography.hazmat.bindings._rust.x509.Certificate</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -2508,6 +2508,107 @@ If the token is not valid, it removes it from the received tokens and the aid_to
 </dd>
 </dl>
 </dd>
+<dt id="saga.agent.Certificate"><code class="flex name class">
+<span>class <span class="ident">Certificate</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="saga.agent.Certificate.extensions"><code class="name">var <span class="ident">extensions</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.issuer"><code class="name">var <span class="ident">issuer</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.not_valid_after"><code class="name">var <span class="ident">not_valid_after</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.not_valid_after_utc"><code class="name">var <span class="ident">not_valid_after_utc</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.not_valid_before"><code class="name">var <span class="ident">not_valid_before</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.not_valid_before_utc"><code class="name">var <span class="ident">not_valid_before_utc</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.public_key_algorithm_oid"><code class="name">var <span class="ident">public_key_algorithm_oid</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.serial_number"><code class="name">var <span class="ident">serial_number</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.signature"><code class="name">var <span class="ident">signature</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.signature_algorithm_oid"><code class="name">var <span class="ident">signature_algorithm_oid</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.signature_algorithm_parameters"><code class="name">var <span class="ident">signature_algorithm_parameters</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.signature_hash_algorithm"><code class="name">var <span class="ident">signature_hash_algorithm</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.subject"><code class="name">var <span class="ident">subject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.tbs_certificate_bytes"><code class="name">var <span class="ident">tbs_certificate_bytes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.tbs_precertificate_bytes"><code class="name">var <span class="ident">tbs_precertificate_bytes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.version"><code class="name">var <span class="ident">version</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="saga.agent.Certificate.fingerprint"><code class="name flex">
+<span>def <span class="ident">fingerprint</span></span>(<span>self, /, algorithm)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.public_bytes"><code class="name flex">
+<span>def <span class="ident">public_bytes</span></span>(<span>self, /, encoding)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.public_key"><code class="name flex">
+<span>def <span class="ident">public_key</span></span>(<span>self, /)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="saga.agent.Certificate.verify_directly_issued_by"><code class="name flex">
+<span>def <span class="ident">verify_directly_issued_by</span></span>(<span>self, /, issuer)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -2553,6 +2654,31 @@ If the token is not valid, it removes it from the received tokens and the aid_to
 <li><code><a title="saga.agent.Agent.send" href="#saga.agent.Agent.send">send</a></code></li>
 <li><code><a title="saga.agent.Agent.store_received_token" href="#saga.agent.Agent.store_received_token">store_received_token</a></code></li>
 <li><code><a title="saga.agent.Agent.token_is_valid" href="#saga.agent.Agent.token_is_valid">token_is_valid</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="saga.agent.Certificate" href="#saga.agent.Certificate">Certificate</a></code></h4>
+<ul class="">
+<li><code><a title="saga.agent.Certificate.extensions" href="#saga.agent.Certificate.extensions">extensions</a></code></li>
+<li><code><a title="saga.agent.Certificate.fingerprint" href="#saga.agent.Certificate.fingerprint">fingerprint</a></code></li>
+<li><code><a title="saga.agent.Certificate.issuer" href="#saga.agent.Certificate.issuer">issuer</a></code></li>
+<li><code><a title="saga.agent.Certificate.not_valid_after" href="#saga.agent.Certificate.not_valid_after">not_valid_after</a></code></li>
+<li><code><a title="saga.agent.Certificate.not_valid_after_utc" href="#saga.agent.Certificate.not_valid_after_utc">not_valid_after_utc</a></code></li>
+<li><code><a title="saga.agent.Certificate.not_valid_before" href="#saga.agent.Certificate.not_valid_before">not_valid_before</a></code></li>
+<li><code><a title="saga.agent.Certificate.not_valid_before_utc" href="#saga.agent.Certificate.not_valid_before_utc">not_valid_before_utc</a></code></li>
+<li><code><a title="saga.agent.Certificate.public_bytes" href="#saga.agent.Certificate.public_bytes">public_bytes</a></code></li>
+<li><code><a title="saga.agent.Certificate.public_key" href="#saga.agent.Certificate.public_key">public_key</a></code></li>
+<li><code><a title="saga.agent.Certificate.public_key_algorithm_oid" href="#saga.agent.Certificate.public_key_algorithm_oid">public_key_algorithm_oid</a></code></li>
+<li><code><a title="saga.agent.Certificate.serial_number" href="#saga.agent.Certificate.serial_number">serial_number</a></code></li>
+<li><code><a title="saga.agent.Certificate.signature" href="#saga.agent.Certificate.signature">signature</a></code></li>
+<li><code><a title="saga.agent.Certificate.signature_algorithm_oid" href="#saga.agent.Certificate.signature_algorithm_oid">signature_algorithm_oid</a></code></li>
+<li><code><a title="saga.agent.Certificate.signature_algorithm_parameters" href="#saga.agent.Certificate.signature_algorithm_parameters">signature_algorithm_parameters</a></code></li>
+<li><code><a title="saga.agent.Certificate.signature_hash_algorithm" href="#saga.agent.Certificate.signature_hash_algorithm">signature_hash_algorithm</a></code></li>
+<li><code><a title="saga.agent.Certificate.subject" href="#saga.agent.Certificate.subject">subject</a></code></li>
+<li><code><a title="saga.agent.Certificate.tbs_certificate_bytes" href="#saga.agent.Certificate.tbs_certificate_bytes">tbs_certificate_bytes</a></code></li>
+<li><code><a title="saga.agent.Certificate.tbs_precertificate_bytes" href="#saga.agent.Certificate.tbs_precertificate_bytes">tbs_precertificate_bytes</a></code></li>
+<li><code><a title="saga.agent.Certificate.verify_directly_issued_by" href="#saga.agent.Certificate.verify_directly_issued_by">verify_directly_issued_by</a></code></li>
+<li><code><a title="saga.agent.Certificate.version" href="#saga.agent.Certificate.version">version</a></code></li>
 </ul>
 </li>
 </ul>
