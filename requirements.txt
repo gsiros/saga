@@ -4,3 +4,4 @@ flask_bcrypt>=1.0.1
 flask_jwt_extended>=4.7.1
 flask_pymongo>=3.0.1
 git+https://github.com/lebrice/SimpleParsing.git
+cryptography>=43.0.3
