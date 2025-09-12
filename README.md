@@ -315,13 +315,10 @@ _, response = local_agent.run(
 Please cite our work as follows for any purpose of usage.
 
 ```tex
-@misc{syros2025sagasecurityarchitecturegoverning,
-      title={SAGA: A Security Architecture for Governing AI Agentic Systems}, 
-      author={Georgios Syros and Anshuman Suri and Jacob Ginesin and Cristina Nita-Rotaru and Alina Oprea},
-      year={2025},
-      eprint={2504.21034},
-      archivePrefix={arXiv},
-      primaryClass={cs.CR},
-      url={https://arxiv.org/abs/2504.21034}, 
+@inproceedings{syros2026saga,
+  title = {SAGA: A Security Architecture for Governing AI Agentic Systems},
+  author={Georgios Syros and Anshuman Suri and Jacob Ginesin and Cristina Nita-Rotaru and Alina Oprea},
+  booktitle = {Network and Distributed System Security (NDSS) Symposium},
+  year = {2026}
 }
 ```
