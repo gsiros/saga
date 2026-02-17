@@ -54,6 +54,11 @@ cd saga/provider/ && python provider.py
 
 Take note of the `endpoint` and update `config.yaml` for the `provider`. If running locally, omit this step.
 
+### Troubleshooting
+Certificates can sometimes be tricky. If you are getting SSL errors (e.g., `SSL: CERTIFICATE_VERIFY_FAILED`), it's most likely a `config.yaml` error. 
+
+Whenever you update the config file, it's **always good practice** to delete previously generated `.key`, `.pub` and `.crt` files. You can find such keys and certificates in `saga/ca` and `saga/provider`.
+
 ## User Registration
 
 Central to all user operations within the SAGA ecosystem is the `user.py` script.  It supports both interactive and automated usage modes.
