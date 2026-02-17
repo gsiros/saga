@@ -26,6 +26,8 @@ Make sure that `mongoDB` is installed on the Provider side and the mongoDB serve
 
 To set things up, we will first begin by starting a `CA` server, followed by a `Provider` server for our SAGA protocol.
 
+**Before you begin**: if you wish to run SAGA's core components (CA, Provider) locally, you need to set all the IPs in the `config.yaml` to `127.0.0.1`. An example of a local configuration can be found in [`config_local.yaml`](config_local.yaml). You can omit any steps that involve updating IPs in the following steps.
+
 #### 1. Setup a CA
 
 Generate valid credentials and host the *.crt, *.key, and *pub files at some endpoint.
@@ -40,7 +42,7 @@ One way to host these files is to run a simple fileserver, such as a python HTTP
 cd saga/ca/ && python -m http.server
 ```
 
-Take note of the `endpoint` where this CA is hosted and update it under `config.yaml` for the `ca`.
+Take note of the `endpoint` where this CA is hosted and update it under `config.yaml` for the `ca`. If running locally, omit this step.
 
 #### 2. Setup the Provider
 
@@ -50,7 +52,7 @@ Host this provider service at some endpoint by running the following command. Th
 cd saga/provider/ && python provider.py
 ```
 
-Take note of the `endpoint` and update `config.yaml` for the `provider`.
+Take note of the `endpoint` and update `config.yaml` for the `provider`. If running locally, omit this step.
 
 ## User Registration
 
