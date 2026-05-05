@@ -5,6 +5,10 @@ from typing import List
 from agent_backend.tools.base import BaseTool
 
 
+_OWNER_FIELD = "_owner"
+_INTERNAL_FIELDS = (_OWNER_FIELD, "_id")
+
+
 class LocalCalendarTool(BaseTool):
     def __init__(self, user_name: str, user_email: str):
         super().__init__("calendar")
@@ -18,7 +22,15 @@ class LocalCalendarTool(BaseTool):
             "start_day": "Monday",
             "end_day": "Friday"
         }
-    
+
+    def _collection(self):
+        return self._get_collection(self.client)
+
+    def _strip_internal(self, doc: dict) -> dict:
+        for field in _INTERNAL_FIELDS:
+            doc.pop(field, None)
+        return doc
+
     def get_preference(self):
         return "Any time between {} and {} between {} and {} in the week".format(
             self.policy["start_time"],
@@ -28,59 +40,55 @@ class LocalCalendarTool(BaseTool):
         )
 
     def seed_data(self, data: List[dict]):
-        db = self.client.get_database(self.tool_name)
-        collection_self = db.get_collection(self.user_email)
+        collection = self._collection()
 
         for event in data:
             event["time_from"] = datetime.fromisoformat(event["time_from"])
             event["time_to"] = datetime.fromisoformat(event["time_to"])
 
-            # Insert into self sent collection
-            collection_self.insert_one(event)
+            # Insert into self's calendar
+            collection.insert_one({**event, _OWNER_FIELD: self.user_email})
 
             # format is "name <email>" - we want email out of it
             participants = event["participants"]
             for participant in participants:
                 participant_email = self._get_email_from_field(participant)
 
-                # Insert into recipient calendar collection, as long as the receipient is not self
+                # Insert into recipient calendar, as long as the recipient is not self
                 if participant_email != self.user_email:
-                    collection_participant = db.get_collection(participant_email)
-                    collection_participant.insert_one(event)
-    
+                    collection.insert_one({**event, _OWNER_FIELD: participant_email})
+
     def get_upcoming_events(self, limit: int = 10):
         """
         This method retrieves a list of upcoming events from the user's calendar.
         Returns a list of dictionaries containing the event details.
         """
-        db = self.client.get_database(self.tool_name)
-        collection = db.get_collection(self.user_email)
-        
+        collection = self._collection()
+
         # We want all calendar events that have not already ended
         now = datetime.now()
-        events = collection.find({"time_to": {"$gte": now}}).sort("time_from", 1)
+        events = collection.find({
+            _OWNER_FIELD: self.user_email,
+            "time_to": {"$gte": now},
+        }).sort("time_from", 1)
         if limit is not None:
             events = events.limit(limit)
-        
-        # Convert to list of dictionaries
-        events = list(events)
-        # Remove objectid : we only need to/from/subject/body/time
-        for email in events:
-            email.pop("_id", None)
+
+        events = [self._strip_internal(e) for e in events]
         return events
 
     def get_availability(self, time_from: str, time_to: str):
         """
         This method retrieves all events within the specified time-range, and then return the blocks of times where the user is free.
         """
-        db = self.client.get_database(self.tool_name)
-        collection = db.get_collection(self.user_email)
+        collection = self._collection()
 
         current = datetime.fromisoformat(time_from)
         end_time_dt = datetime.fromisoformat(time_to)
 
         # We want all calendar events that are within the specified time range
         events = collection.find({
+            _OWNER_FIELD: self.user_email,
             "$or": [
                 {"time_from": {"$gte": current, "$lte": end_time_dt}},
                 {"time_to": {"$gte": current, "$lte": end_time_dt}},
@@ -153,7 +161,7 @@ class LocalCalendarTool(BaseTool):
                            event: str,
                            participants: List[str],
                            details: str):
-        db = self.client.get_database(self.tool_name)
+        collection = self._collection()
 
         # Make sure time_from and time_to are ISO format
         try:
@@ -161,16 +169,16 @@ class LocalCalendarTool(BaseTool):
             time_from = datetime.fromisoformat(time_from)
         except ValueError:
             print("Invalid date format for time_from")
-        
+
         try:
             time_to = datetime.fromisoformat(time_to)
         except ValueError:
             print("Invalid date format for time_to")
-        
+
         # Make sure user is in participants
         if f"{self.user_name} <{self.user_email}>" not in participants:
             participants.append(f"{self.user_name} <{self.user_email}>")
-        
+
         participants = list(set(participants))  # Remove duplicates
 
         event = {
@@ -184,7 +192,6 @@ class LocalCalendarTool(BaseTool):
         # Now add it to the calendar of all participants
         for participant in participants:
             participant_email = self._get_email_from_field(participant)
-            collection = db.get_collection(participant_email)
-            collection.insert_one(event)
+            collection.insert_one({**event, _OWNER_FIELD: participant_email})
 
         return True

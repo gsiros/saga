@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>saga.common.crypto API documentation</title>
+<meta name="description" content="SAGA Cryptographic module for key generation.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>saga.common.crypto</code></h1>
+</header>
+<section id="section-intro">
+<p>SAGA Cryptographic module for key generation.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="saga.common.crypto.bytesToPrivateEd25519Key"><code class="name flex">
+<span>def <span class="ident">bytesToPrivateEd25519Key</span></span>(<span>key_bytes)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bytesToPrivateEd25519Key(key_bytes):
+    &#34;&#34;&#34;
+    Convert bytes to an Ed25519 Private key
+    &#34;&#34;&#34;
+    return ed25519.Ed25519PrivateKey.from_private_bytes(key_bytes)</code></pre>
+</details>
+<div class="desc"><p>Convert bytes to an Ed25519 Private key</p></div>
+</dd>
+<dt id="saga.common.crypto.bytesToPrivateX25519Key"><code class="name flex">
+<span>def <span class="ident">bytesToPrivateX25519Key</span></span>(<span>key_bytes)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bytesToPrivateX25519Key(key_bytes):
+    &#34;&#34;&#34;
+    Convert bytes to an X25519 Public key
+
+    Args:
+        key_bytes: The bytes representing the X25519 private key.
+    &#34;&#34;&#34;
+    return x25519.X25519PrivateKey.from_private_bytes(key_bytes)</code></pre>
+</details>
+<div class="desc"><p>Convert bytes to an X25519 Public key</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>key_bytes</code></strong></dt>
+<dd>The bytes representing the X25519 private key.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.bytesToPublicEd25519Key"><code class="name flex">
+<span>def <span class="ident">bytesToPublicEd25519Key</span></span>(<span>key_bytes)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bytesToPublicEd25519Key(key_bytes):
+    &#34;&#34;&#34;
+    Convert bytes to an Ed25519 Public key
+    &#34;&#34;&#34;
+    return ed25519.Ed25519PublicKey.from_public_bytes(key_bytes)</code></pre>
+</details>
+<div class="desc"><p>Convert bytes to an Ed25519 Public key</p></div>
+</dd>
+<dt id="saga.common.crypto.bytesToPublicX25519Key"><code class="name flex">
+<span>def <span class="ident">bytesToPublicX25519Key</span></span>(<span>key_bytes)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bytesToPublicX25519Key(key_bytes):
+    &#34;&#34;&#34;
+    Convert bytes to an X25519 Public key
+
+    Args:
+        key_bytes: The bytes representing the X25519 public key.
+    &#34;&#34;&#34;
+    return x25519.X25519PublicKey.from_public_bytes(key_bytes)</code></pre>
+</details>
+<div class="desc"><p>Convert bytes to an X25519 Public key</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>key_bytes</code></strong></dt>
+<dd>The bytes representing the X25519 public key.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.bytesToX509Certificate"><code class="name flex">
+<span>def <span class="ident">bytesToX509Certificate</span></span>(<span>bytes)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bytesToX509Certificate(bytes):
+    &#34;&#34;&#34;
+    Convert bytes to an X.509 certificate.
+    &#34;&#34;&#34;
+    return x509.load_pem_x509_certificate(bytes)</code></pre>
+</details>
+<div class="desc"><p>Convert bytes to an X.509 certificate.</p></div>
+</dd>
+<dt id="saga.common.crypto.cure"><code class="name flex">
+<span>def <span class="ident">cure</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cure(path):
+    &#34;&#34;&#34;Ensure the path ends with a slash.&#34;&#34;&#34;
+    return path if path[-1]==&#39;/&#39; else path+&#34;/&#34;</code></pre>
+</details>
+<div class="desc"><p>Ensure the path ends with a slash.</p></div>
+</dd>
+<dt id="saga.common.crypto.decrypt_token"><code class="name flex">
+<span>def <span class="ident">decrypt_token</span></span>(<span>encrypted_token, sdhkey) ‑> dict</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def decrypt_token(encrypted_token, sdhkey) -&gt; dict:
+    &#34;&#34;&#34;
+    Decrypts an encrypted token using AES-GCM with a Diffie-Hellman shared key.
+
+    Args:
+        encrypted_token: The Base64-encoded encrypted token.
+        sdhkey: The shared DH key (must be 32 bytes for AES-256).
+    &#34;&#34;&#34;
+    # Decode the encrypted token
+    encrypted_data = base64.b64decode(encrypted_token.encode(&#39;utf-8&#39;))
+
+    # Extract the nonce, ciphertext, and tag
+    nonce = encrypted_data[:12]
+    ciphertext = encrypted_data[12:-16]
+    tag = encrypted_data[-16:]
+
+    # TODO: Validation checks for lengths (match expected length, might not be noticed when slicing)
+
+    # Decrypt the token
+    cipher = Cipher(algorithms.AES(sdhkey), modes.GCM(nonce, tag))
+    decryptor = cipher.decryptor()
+    token = decryptor.update(ciphertext) + decryptor.finalize()
+
+    return json.loads(token.decode(&#39;utf-8&#39;))</code></pre>
+</details>
+<div class="desc"><p>Decrypts an encrypted token using AES-GCM with a Diffie-Hellman shared key.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>encrypted_token</code></strong></dt>
+<dd>The Base64-encoded encrypted token.</dd>
+<dt><strong><code>sdhkey</code></strong></dt>
+<dd>The shared DH key (must be 32 bytes for AES-256).</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.der_to_pem"><code class="name flex">
+<span>def <span class="ident">der_to_pem</span></span>(<span>der_bytes)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def der_to_pem(der_bytes):
+    &#34;&#34;&#34;
+    Convert DER bytes to properly line-wrapped PEM format (64-char lines).
+
+    Args:
+        der_bytes: The DER-encoded bytes of the certificate.
+    &#34;&#34;&#34;
+    b64_encoded = base64.b64encode(der_bytes).decode(&#39;ascii&#39;)
+    # Insert newlines every 64 characters
+    wrapped = &#39;\n&#39;.join(b64_encoded[i:i+64] for i in range(0, len(b64_encoded), 64))
+    pem = f&#34;-----BEGIN CERTIFICATE-----\n{wrapped}\n-----END CERTIFICATE-----\n&#34;
+    return pem.encode(&#39;ascii&#39;)</code></pre>
+</details>
+<div class="desc"><p>Convert DER bytes to properly line-wrapped PEM format (64-char lines).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>der_bytes</code></strong></dt>
+<dd>The DER-encoded bytes of the certificate.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.derive_x25519_keypair"><code class="name flex">
+<span>def <span class="ident">derive_x25519_keypair</span></span>(<span>ed25519_private_key)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def derive_x25519_keypair(ed25519_private_key):
+    &#34;&#34;&#34;
+    Derive an X25519 keypair from an Ed25519 private key.
+
+    Args:
+        ed25519_private_key: The Ed25519 private key object.
+    &#34;&#34;&#34;
+    # Convert Ed25519 Key to X25519 Key (for Diffie-Hellman Key Exchange)
+    # XEdDSA allows deriving an X25519 key from an Ed25519 key.
+    x25519_private_key = x25519.X25519PrivateKey.from_private_bytes(
+        ed25519_private_key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+    )
+    x25519_public_key = x25519_private_key.public_key()
+
+    return x25519_private_key, x25519_public_key</code></pre>
+</details>
+<div class="desc"><p>Derive an X25519 keypair from an Ed25519 private key.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ed25519_private_key</code></strong></dt>
+<dd>The Ed25519 private key object.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.encrypt_token"><code class="name flex">
+<span>def <span class="ident">encrypt_token</span></span>(<span>token_dict, sdhkey) ‑> bytes</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def encrypt_token(token_dict, sdhkey) -&gt; bytes:
+    &#34;&#34;&#34;
+    Encrypts a token dictionary using AES-GCM with a Diffie-Hellman shared key.
+
+    Args:
+        token_dict: The dictionary containing the token data.
+        sdhkey: The shared DH key (must be 32 bytes for AES-256).
+    &#34;&#34;&#34;
+    nonce = token_dict[&#39;nonce&#39;]
+    
+
+    # Convert complex objects to serializable formats
+    serializable_token = {
+        &#34;nonce&#34;: base64.b64encode(token_dict[&#39;nonce&#39;]).decode(&#39;utf-8&#39;),
+        &#34;issue_timestamp&#34;: token_dict[&#34;issue_timestamp&#34;].isoformat(),
+        &#34;expiration_timestamp&#34;: token_dict[&#34;expiration_timestamp&#34;].isoformat(),
+        &#34;communication_quota&#34;: token_dict[&#34;communication_quota&#34;],
+        &#34;recipient_pac&#34;: base64.b64encode(
+            token_dict[&#34;recipient_pac&#34;].public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
+            )
+        ).decode(&#39;utf-8&#39;)
+    }
+
+    # Serialize to JSON and encode to bytes
+    token_json = json.dumps(serializable_token).encode(&#39;utf-8&#39;)
+
+    # Encrypt using AES-GCM
+    cipher = Cipher(algorithms.AES(sdhkey), modes.GCM(nonce))
+    encryptor = cipher.encryptor()
+    ciphertext = encryptor.update(token_json) + encryptor.finalize()
+
+    # Concatenate nonce + ciphertext + authentication tag
+    encrypted_data = nonce + ciphertext + encryptor.tag
+
+    # Return Base64-encoded encrypted data
+    return encrypted_data</code></pre>
+</details>
+<div class="desc"><p>Encrypts a token dictionary using AES-GCM with a Diffie-Hellman shared key.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>token_dict</code></strong></dt>
+<dd>The dictionary containing the token data.</dd>
+<dt><strong><code>sdhkey</code></strong></dt>
+<dd>The shared DH key (must be 32 bytes for AES-256).</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.generate_ca"><code class="name flex">
+<span>def <span class="ident">generate_ca</span></span>(<span>config)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_ca(config):
+    &#34;&#34;&#34;
+    Generates a self-signed Certificate Authority (CA) with an Ed25519 key pair.
+
+    :return: Tuple containing (ca_private_key, ca_certificate)
+    &#34;&#34;&#34;
+    # Generate Ed25519 private key
+    ca_private_key, ca_public_key = generate_ed25519_keypair()
+
+    # Define the CA&#39;s distinguished name
+    ca_subject = x509.Name([
+        x509.NameAttribute(NameOID.COUNTRY_NAME, config.get(&#34;COUNTRY_NAME&#34;, &#34;XX&#34;)),
+        x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, config.get(&#34;STATE_OR_PROVINCE_NAME&#34;, &#34;Anonymous&#34;)),
+        x509.NameAttribute(NameOID.LOCALITY_NAME, config.get(&#34;LOCALITY_NAME&#34;, &#34;Anonymous&#34;)),
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, config.get(&#34;ORG_NAME&#34;, &#34;CA&#34;)),
+        x509.NameAttribute(NameOID.COMMON_NAME, config.get(&#34;COMMON_NAME&#34;, &#34;localhost&#34;)),
+    ])
+
+    # Create a self-signed CA certificate
+    ip_address = ipaddress.ip_address(config.get(&#34;IP&#34;, &#34;127.0.0.1&#34;))
+    ca_certificate = (
+        x509.CertificateBuilder()
+        .subject_name(ca_subject)
+        .issuer_name(ca_subject)  # Self-signed
+        .public_key(ca_public_key)
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(datetime.datetime.now(tz=datetime.timezone.utc))
+        .not_valid_after(datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=10 * 365))  # Valid for 10 years
+        .add_extension(
+            x509.BasicConstraints(ca=True, path_length=1), critical=True
+        ).add_extension(
+            x509.SubjectAlternativeName([
+                x509.DNSName(config.get(&#34;COMMON_NAME&#34;, &#34;localhost&#34;)),  # Add hostname in SAN
+                x509.IPAddress(ip_address)  # Also allow loopback IP
+            ]),
+            critical=True
+        )
+        .sign(ca_private_key, algorithm=None)  # Self-sign with CA&#39;s private key
+    )
+    return ca_private_key, ca_public_key, ca_certificate</code></pre>
+</details>
+<div class="desc"><p>Generates a self-signed Certificate Authority (CA) with an Ed25519 key pair.</p>
+<p>:return: Tuple containing (ca_private_key, ca_certificate)</p></div>
+</dd>
+<dt id="saga.common.crypto.generate_ed25519_keypair"><code class="name flex">
+<span>def <span class="ident">generate_ed25519_keypair</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_ed25519_keypair():
+    &#34;&#34;&#34;
+    Generate a public-private keypair using the ed25519 algorithm.
+    &#34;&#34;&#34;
+
+    # Generate Ed25519 Private Key (for signing)
+    ed25519_private_key = ed25519.Ed25519PrivateKey.generate()
+
+    # Extract Ed25519 Public Key
+    ed25519_public_key = ed25519_private_key.public_key()
+
+    return ed25519_private_key, ed25519_public_key</code></pre>
+</details>
+<div class="desc"><p>Generate a public-private keypair using the ed25519 algorithm.</p></div>
+</dd>
+<dt id="saga.common.crypto.generate_self_signed_x509_certificate"><code class="name flex">
+<span>def <span class="ident">generate_self_signed_x509_certificate</span></span>(<span>config, private_key, public_key)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_self_signed_x509_certificate(config, private_key, public_key):
+    &#34;&#34;&#34;
+    Generate a self-signed X.509 certificate using the Ed25519 keypair.
+    &#34;&#34;&#34;
+
+    # Generate a Self-Signed X.509 Certificate Using Ed25519 Key
+    subject = issuer = x509.Name([
+        x509.NameAttribute(NameOID.COUNTRY_NAME, config[&#34;COUNTRY_NAME&#34;]),
+        x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, config[&#34;STATE_OR_PROVINCE_NAME&#34;]),
+        x509.NameAttribute(NameOID.LOCALITY_NAME, config[&#34;LOCALITY_NAME&#34;]),
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, config[&#34;ORGANIZATION_NAME&#34;]),
+        x509.NameAttribute(NameOID.COMMON_NAME, config[&#34;COMMON_NAME&#34;]),
+    ])
+
+    ip_address = ipaddress.ip_address(config[&#34;IP&#34;])  
+    san = x509.SubjectAlternativeName([
+        x509.DNSName(config[&#34;COMMON_NAME&#34;]),  # Keep the DNS name
+        x509.IPAddress(ip_address)  # Add IP address to certificate
+    ])
+
+    certificate = x509.CertificateBuilder().subject_name(
+        subject
+    ).issuer_name(
+        issuer
+    ).public_key(
+        public_key
+    ).serial_number(
+        x509.random_serial_number()
+    ).not_valid_before(
+        datetime.datetime.now()
+    ).not_valid_after(
+        datetime.datetime.now() + datetime.timedelta(days=365)
+    ).add_extension(
+        san, critical=False # Add SAN extension
+    ).sign(
+        private_key,  # Self-signing with the Ed25519 private key
+        algorithm=None  # No hash needed for Ed25519
+    )
+
+    return certificate</code></pre>
+</details>
+<div class="desc"><p>Generate a self-signed X.509 certificate using the Ed25519 keypair.</p></div>
+</dd>
+<dt id="saga.common.crypto.generate_x25519_keypair"><code class="name flex">
+<span>def <span class="ident">generate_x25519_keypair</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_x25519_keypair():
+    &#34;&#34;&#34;
+    Generate a public-private keypair using the x25519 algorithm.
+    &#34;&#34;&#34;
+
+    # Generate
+    x25519_private_key = x25519.X25519PrivateKey.generate()
+    x25519_public_key = x25519_private_key.public_key()
+    return x25519_private_key, x25519_public_key</code></pre>
+</details>
+<div class="desc"><p>Generate a public-private keypair using the x25519 algorithm.</p></div>
+</dd>
+<dt id="saga.common.crypto.generate_x509_certificate"><code class="name flex">
+<span>def <span class="ident">generate_x509_certificate</span></span>(<span>config, public_key, ca_private_key, ca_certificate)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_x509_certificate(config, public_key, ca_private_key, ca_certificate):
+    &#34;&#34;&#34;
+    Generates an X.509 certificate signed by a Certificate Authority (CA).
+
+    Args:
+        config: A dictionary containing certificate information (e.g., COUNTRY_NAME).
+        public_key: The public key associated with the certificate.
+        ca_private_key: The private key of the Certificate Authority (used for signing).
+        ca_certificate: The certificate of the Certificate Authority (used as issuer).
+    &#34;&#34;&#34;
+    subject = x509.Name([
+        x509.NameAttribute(NameOID.COUNTRY_NAME, config.get(&#34;COUNTRY_NAME&#34;, &#34;XX&#34;)),
+        x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, config.get(&#34;STATE_NAME&#34;, &#34;Anonymous&#34;)),
+        x509.NameAttribute(NameOID.LOCALITY_NAME, config.get(&#34;LOCALITY_NAME&#34;, &#34;Anonymous&#34;)),
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, config.get(&#34;ORG_NAME&#34;, &#34;Anonymous&#34;)),
+        x509.NameAttribute(NameOID.COMMON_NAME, config.get(&#34;COMMON_NAME&#34;, &#34;localhost&#34;)),
+    ])
+
+    
+    ip_address = ipaddress.ip_address(config.get(&#34;IP&#34;, &#34;127.0.0.1&#34;))
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(ca_certificate.subject)  # CA is the issuer
+        .public_key(public_key)
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(datetime.datetime.now())
+        .not_valid_after(datetime.datetime.now() + datetime.timedelta(days=365))
+        .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)  # Not a CA certificate
+        .add_extension(
+            x509.SubjectAlternativeName([
+                x509.DNSName(config.get(&#34;COMMON_NAME&#34;, &#34;localhost&#34;)),  # Ensure localhost is a SAN entry
+                x509.IPAddress(ip_address)  # Also include localhost IP
+            ]),
+            critical=True
+        )
+        .sign(ca_private_key, algorithm=None)  # Signed by the CA&#39;s private key
+    )
+
+    return cert</code></pre>
+</details>
+<div class="desc"><p>Generates an X.509 certificate signed by a Certificate Authority (CA).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>config</code></strong></dt>
+<dd>A dictionary containing certificate information (e.g., COUNTRY_NAME).</dd>
+<dt><strong><code>public_key</code></strong></dt>
+<dd>The public key associated with the certificate.</dd>
+<dt><strong><code>ca_private_key</code></strong></dt>
+<dd>The private key of the Certificate Authority (used for signing).</dd>
+<dt><strong><code>ca_certificate</code></strong></dt>
+<dd>The certificate of the Certificate Authority (used as issuer).</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.load_ca"><code class="name flex">
+<span>def <span class="ident">load_ca</span></span>(<span>path, orgname)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_ca(path, orgname):
+    &#34;&#34;&#34;
+    Loads the CA&#39;s private key, public key, and certificate from files.
+
+    Args:
+        path: The directory where the keys and certificate are stored.
+        orgname: The organization name used for naming the files.
+    &#34;&#34;&#34;
+    path = cure(path)
+    private_key, public_key = load_ed25519_keys(path+f&#34;{orgname}&#34;)
+    cert = load_x509_certificate(path+f&#34;{orgname}.crt&#34;)
+    return private_key, public_key, cert</code></pre>
+</details>
+<div class="desc"><p>Loads the CA's private key, public key, and certificate from files.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>The directory where the keys and certificate are stored.</dd>
+<dt><strong><code>orgname</code></strong></dt>
+<dd>The organization name used for naming the files.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.load_ed25519_keys"><code class="name flex">
+<span>def <span class="ident">load_ed25519_keys</span></span>(<span>name)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_ed25519_keys(name):
+    &#34;&#34;&#34;
+    Load the Ed25519 private and public keys from files.
+
+    Args:
+        name: The base name of the key files (without extension).
+    &#34;&#34;&#34;
+    # Load the Ed25519 Private Key
+    with open(f&#34;{name}.key&#34;, &#34;rb&#34;) as f:
+        ed25519_private_key = serialization.load_pem_private_key(
+            f.read(),
+            password=None
+        )
+
+    # Extract the Ed25519 Public Key
+    ed25519_public_key = ed25519_private_key.public_key()
+
+    return ed25519_private_key, ed25519_public_key</code></pre>
+</details>
+<div class="desc"><p>Load the Ed25519 private and public keys from files.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>The base name of the key files (without extension).</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.load_x509_certificate"><code class="name flex">
+<span>def <span class="ident">load_x509_certificate</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_x509_certificate(path):
+    &#34;&#34;&#34;
+    Load an X.509 certificate from a file.
+    &#34;&#34;&#34;
+    # Load the Self-Signed Certificate
+    with open(path, &#34;rb&#34;) as f:
+        certificate = x509.load_pem_x509_certificate(f.read())
+
+    return certificate</code></pre>
+</details>
+<div class="desc"><p>Load an X.509 certificate from a file.</p></div>
+</dd>
+<dt id="saga.common.crypto.pem_to_bytes"><code class="name flex">
+<span>def <span class="ident">pem_to_bytes</span></span>(<span>pem_string)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pem_to_bytes(pem_string):
+    &#34;&#34;&#34;
+    Converts a PEM format string to bytes by removing the header, footer, and newlines.
+
+    Args:
+        pem_string: The PEM formatted string.
+    &#34;&#34;&#34;
+    pem_lines = pem_string.strip().splitlines()
+    pem_body = [line for line in pem_lines if not line.startswith(&#34;-----&#34;)]
+    return base64.b64decode(&#34;&#34;.join(pem_body))</code></pre>
+</details>
+<div class="desc"><p>Converts a PEM format string to bytes by removing the header, footer, and newlines.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pem_string</code></strong></dt>
+<dd>The PEM formatted string.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.save_ca"><code class="name flex">
+<span>def <span class="ident">save_ca</span></span>(<span>path, orgname, ca_private_key, ca_public_key, ca_certificate)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_ca(path, orgname, ca_private_key, ca_public_key, ca_certificate):
+    &#34;&#34;&#34;
+    Saves the CA&#39;s private key, public key, and certificate to files in `.key`, `.pub`, and `.crt` formats.
+
+    Args:
+        path: The directory where the keys and certificate will be saved.
+        orgname: The organization name used for naming the files.
+        ca_private_key: The CA&#39;s private key (Ed25519).
+        ca_public_key: The CA&#39;s public key (Ed25519).
+        ca_certificate: The CA&#39;s self-signed certificate (X.509).
+    &#34;&#34;&#34;
+
+    if path[-1] != &#39;/&#39;:
+        path += &#39;/&#39;
+
+    # Save Private Key (PEM)
+    with open(path+f&#34;{orgname}.key&#34;, &#34;wb&#34;) as key_file:
+        key_file.write(
+            ca_private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,  # PKCS8 is the correct format for Ed25519
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+        )
+
+    # Save Public Key (Raw bytes for Ed25519)
+    with open(path+f&#34;{orgname}.pub&#34;, &#34;wb&#34;) as pub_file:
+        pub_file.write(
+            ca_public_key.public_bytes(
+                encoding=serialization.Encoding.Raw,
+                format=serialization.PublicFormat.Raw
+            )
+        )
+
+    # Save CA Certificate (.crt)
+    with open(path+f&#34;{orgname}.crt&#34;, &#34;wb&#34;) as cert_file:
+        cert_file.write(ca_certificate.public_bytes(serialization.Encoding.PEM))</code></pre>
+</details>
+<div class="desc"><p>Saves the CA's private key, public key, and certificate to files in <code>.key</code>, <code>.pub</code>, and <code>.crt</code> formats.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>The directory where the keys and certificate will be saved.</dd>
+<dt><strong><code>orgname</code></strong></dt>
+<dd>The organization name used for naming the files.</dd>
+<dt><strong><code>ca_private_key</code></strong></dt>
+<dd>The CA's private key (Ed25519).</dd>
+<dt><strong><code>ca_public_key</code></strong></dt>
+<dd>The CA's public key (Ed25519).</dd>
+<dt><strong><code>ca_certificate</code></strong></dt>
+<dd>The CA's self-signed certificate (X.509).</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.save_ed25519_keys"><code class="name flex">
+<span>def <span class="ident">save_ed25519_keys</span></span>(<span>name, ed25519_private_key, ed25519_public_key)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_ed25519_keys(name, ed25519_private_key, ed25519_public_key):
+    &#34;&#34;&#34;
+    Save the Ed25519 private and public keys to files.
+
+    Args:
+        name: The base name for the key files (without extension).
+        ed25519_private_key: The Ed25519 private key object.
+        ed25519_public_key: The Ed25519 public key object.
+    &#34;&#34;&#34;
+
+    # Save the Ed25519 Private Key
+    with open(f&#34;{name}.key&#34;, &#34;wb&#34;) as f:
+        f.write(ed25519_private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption()
+        ))
+
+    # Save the Ed25519 Public Key
+    with open(f&#34;{name}.pub&#34;, &#34;wb&#34;) as f:
+        f.write(ed25519_public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        ))
+
+    return f&#34;{name}.key&#34;, f&#34;{name}.pub&#34;</code></pre>
+</details>
+<div class="desc"><p>Save the Ed25519 private and public keys to files.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>The base name for the key files (without extension).</dd>
+<dt><strong><code>ed25519_private_key</code></strong></dt>
+<dd>The Ed25519 private key object.</dd>
+<dt><strong><code>ed25519_public_key</code></strong></dt>
+<dd>The Ed25519 public key object.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.save_x25519_keys"><code class="name flex">
+<span>def <span class="ident">save_x25519_keys</span></span>(<span>name, x25519_private_key, x25519_public_key)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_x25519_keys(name, x25519_private_key, x25519_public_key):
+    &#34;&#34;&#34;
+    Save the X25519 private and public keys to files.
+
+    Args:
+        name: The base name for the key files (without extension).
+        x25519_private_key: The X25519 private key to save.
+        x25519_public_key: The X25519 public key to save.
+    &#34;&#34;&#34;
+
+    # Save the X25519 Public Key (for Diffie-Hellman Key Exchange)
+    with open(f&#34;{name}.pub&#34;, &#34;wb&#34;) as f:
+        f.write(x25519_public_key.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        ))
+
+    # Save the X25519 Private Key (optional, for DH key exchange)
+    with open(f&#34;{name}.key&#34;, &#34;wb&#34;) as f:
+        f.write(x25519_private_key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption()
+        ))</code></pre>
+</details>
+<div class="desc"><p>Save the X25519 private and public keys to files.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>The base name for the key files (without extension).</dd>
+<dt><strong><code>x25519_private_key</code></strong></dt>
+<dd>The X25519 private key to save.</dd>
+<dt><strong><code>x25519_public_key</code></strong></dt>
+<dd>The X25519 public key to save.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.save_x509_certificate"><code class="name flex">
+<span>def <span class="ident">save_x509_certificate</span></span>(<span>name, certificate)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_x509_certificate(name, certificate):
+    &#34;&#34;&#34;
+    Save the X.509 certificate to a file.
+
+    Args:
+        name: The base name for the certificate file (without extension).
+        certificate: The X.509 certificate to save.
+    &#34;&#34;&#34;
+    # Save the Self-Signed Certificate
+    with open(f&#34;{name}.crt&#34;, &#34;wb&#34;) as f:
+        f.write(certificate.public_bytes(serialization.Encoding.PEM))
+
+    return f&#34;{name}.crt&#34;</code></pre>
+</details>
+<div class="desc"><p>Save the X.509 certificate to a file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>The base name for the certificate file (without extension).</dd>
+<dt><strong><code>certificate</code></strong></dt>
+<dd>The X.509 certificate to save.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.sign_message"><code class="name flex">
+<span>def <span class="ident">sign_message</span></span>(<span>ed25519_private_key, message)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sign_message(ed25519_private_key, message):
+    &#34;&#34;&#34;
+    Sign a message using the Ed25519 private key.
+
+    Args:
+        ed25519_private_key: The Ed25519 private key object.
+        message: The message to sign.
+    &#34;&#34;&#34;
+
+    # Sign the Message Using the Ed25519 Private Key
+    signature = ed25519_private_key.sign(
+        message.encode(&#34;utf-8&#34;)
+    )
+    return message, signature</code></pre>
+</details>
+<div class="desc"><p>Sign a message using the Ed25519 private key.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ed25519_private_key</code></strong></dt>
+<dd>The Ed25519 private key object.</dd>
+<dt><strong><code>message</code></strong></dt>
+<dd>The message to sign.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.verify_signature"><code class="name flex">
+<span>def <span class="ident">verify_signature</span></span>(<span>ed25519_public_key, message, signature)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def verify_signature(ed25519_public_key, message, signature):
+    &#34;&#34;&#34;
+    Verify a signature using the Ed25519 public key.
+
+    Args:
+        ed25519_public_key: The Ed25519 public key object.
+        message: The original message that was signed.
+        signature: The signature to verify.
+    &#34;&#34;&#34;
+
+    # Verify the Signature Using the Ed25519 Public Key
+    try:
+        ed25519_public_key.verify(
+            signature,
+            message.encode(&#34;utf-8&#34;)
+        )
+        return True
+    except:
+        return False</code></pre>
+</details>
+<div class="desc"><p>Verify a signature using the Ed25519 public key.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ed25519_public_key</code></strong></dt>
+<dd>The Ed25519 public key object.</dd>
+<dt><strong><code>message</code></strong></dt>
+<dd>The original message that was signed.</dd>
+<dt><strong><code>signature</code></strong></dt>
+<dd>The signature to verify.</dd>
+</dl></div>
+</dd>
+<dt id="saga.common.crypto.verify_x509_certificate"><code class="name flex">
+<span>def <span class="ident">verify_x509_certificate</span></span>(<span>certificate, ca_certificate)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def verify_x509_certificate(certificate, ca_certificate):
+    &#34;&#34;&#34;
+    Verify a given certificate using the CA certificate.
+
+    Args:
+        certificate: The X.509 certificate to verify.
+        ca_certificate: The X.509 certificate of the Certificate Authority (CA).
+    &#34;&#34;&#34;
+    
+    # Use the CA&#39;s public key to verify the certificate&#39;s signature
+    ca_certificate.public_key().verify(
+        certificate.signature,
+        certificate.tbs_certificate_bytes,
+    )</code></pre>
+</details>
+<div class="desc"><p>Verify a given certificate using the CA certificate.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>certificate</code></strong></dt>
+<dd>The X.509 certificate to verify.</dd>
+<dt><strong><code>ca_certificate</code></strong></dt>
+<dd>The X.509 certificate of the Certificate Authority (CA).</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="SAGA Home" href="https://gsiros.github.io/saga/">
+<img src="https://raw.githubusercontent.com/gsiros/saga/94f3562b8f9821717bff825aa4111b2ee5cecec5/assets/logo.png" alt="SAGA" width="256">
+</a>
+</header>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="saga.common" href="index.html">saga.common</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="saga.common.crypto.bytesToPrivateEd25519Key" href="#saga.common.crypto.bytesToPrivateEd25519Key">bytesToPrivateEd25519Key</a></code></li>
+<li><code><a title="saga.common.crypto.bytesToPrivateX25519Key" href="#saga.common.crypto.bytesToPrivateX25519Key">bytesToPrivateX25519Key</a></code></li>
+<li><code><a title="saga.common.crypto.bytesToPublicEd25519Key" href="#saga.common.crypto.bytesToPublicEd25519Key">bytesToPublicEd25519Key</a></code></li>
+<li><code><a title="saga.common.crypto.bytesToPublicX25519Key" href="#saga.common.crypto.bytesToPublicX25519Key">bytesToPublicX25519Key</a></code></li>
+<li><code><a title="saga.common.crypto.bytesToX509Certificate" href="#saga.common.crypto.bytesToX509Certificate">bytesToX509Certificate</a></code></li>
+<li><code><a title="saga.common.crypto.cure" href="#saga.common.crypto.cure">cure</a></code></li>
+<li><code><a title="saga.common.crypto.decrypt_token" href="#saga.common.crypto.decrypt_token">decrypt_token</a></code></li>
+<li><code><a title="saga.common.crypto.der_to_pem" href="#saga.common.crypto.der_to_pem">der_to_pem</a></code></li>
+<li><code><a title="saga.common.crypto.derive_x25519_keypair" href="#saga.common.crypto.derive_x25519_keypair">derive_x25519_keypair</a></code></li>
+<li><code><a title="saga.common.crypto.encrypt_token" href="#saga.common.crypto.encrypt_token">encrypt_token</a></code></li>
+<li><code><a title="saga.common.crypto.generate_ca" href="#saga.common.crypto.generate_ca">generate_ca</a></code></li>
+<li><code><a title="saga.common.crypto.generate_ed25519_keypair" href="#saga.common.crypto.generate_ed25519_keypair">generate_ed25519_keypair</a></code></li>
+<li><code><a title="saga.common.crypto.generate_self_signed_x509_certificate" href="#saga.common.crypto.generate_self_signed_x509_certificate">generate_self_signed_x509_certificate</a></code></li>
+<li><code><a title="saga.common.crypto.generate_x25519_keypair" href="#saga.common.crypto.generate_x25519_keypair">generate_x25519_keypair</a></code></li>
+<li><code><a title="saga.common.crypto.generate_x509_certificate" href="#saga.common.crypto.generate_x509_certificate">generate_x509_certificate</a></code></li>
+<li><code><a title="saga.common.crypto.load_ca" href="#saga.common.crypto.load_ca">load_ca</a></code></li>
+<li><code><a title="saga.common.crypto.load_ed25519_keys" href="#saga.common.crypto.load_ed25519_keys">load_ed25519_keys</a></code></li>
+<li><code><a title="saga.common.crypto.load_x509_certificate" href="#saga.common.crypto.load_x509_certificate">load_x509_certificate</a></code></li>
+<li><code><a title="saga.common.crypto.pem_to_bytes" href="#saga.common.crypto.pem_to_bytes">pem_to_bytes</a></code></li>
+<li><code><a title="saga.common.crypto.save_ca" href="#saga.common.crypto.save_ca">save_ca</a></code></li>
+<li><code><a title="saga.common.crypto.save_ed25519_keys" href="#saga.common.crypto.save_ed25519_keys">save_ed25519_keys</a></code></li>
+<li><code><a title="saga.common.crypto.save_x25519_keys" href="#saga.common.crypto.save_x25519_keys">save_x25519_keys</a></code></li>
+<li><code><a title="saga.common.crypto.save_x509_certificate" href="#saga.common.crypto.save_x509_certificate">save_x509_certificate</a></code></li>
+<li><code><a title="saga.common.crypto.sign_message" href="#saga.common.crypto.sign_message">sign_message</a></code></li>
+<li><code><a title="saga.common.crypto.verify_signature" href="#saga.common.crypto.verify_signature">verify_signature</a></code></li>
+<li><code><a title="saga.common.crypto.verify_x509_certificate" href="#saga.common.crypto.verify_x509_certificate">verify_x509_certificate</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

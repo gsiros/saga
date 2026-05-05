@@ -3,13 +3,14 @@
 </p>
 
 <h1 align="center"><i>A Security Architecture for Governing AI Agentic Systems</i></h1>
-<h3 align="center">Georgios Syros, Anshuman Suri, Jacob Ginesin, Cristina Nita-Rotaru, Alina Oprea</h3>
+
 
 ## Abstract
 
 Large Language Model (LLM)-based agents increasingly interact, collaborate, and delegate tasks to one another autonomously with minimal human interaction. Industry guidelines for agentic system governance emphasize the need for users to maintain comprehensive control over their agents, mitigating potential damage from malicious agents. Several proposed agentic system designs address agent identity, authorization, and delegation, but remain purely theoretical, without concrete implementation and evaluation. Most importantly, they do not provide user-controlled agent management.
 
-To address this gap, we propose SAGA, a scalable Security Architecture for Governing Agentic systems, that offers user oversight over their agents’ lifecycle. In our design, users register their agents with a central entity, the Provider, that maintains agents contact information, user-defined access control policies, and helps agents enforce these policies on inter-agent communication. We introduce a cryptographic mechanism for deriving access control tokens, that offers fine-grained control over an agent’s interaction with other agents, providing formal security guarantees. We evaluate SAGA on several agentic tasks, using agents in different geolocations, and multiple on-device and cloud LLMs, demonstrating minimal performance overhead with no impact on underlying task utility in a wide range of conditions. Our architecture enables secure and trustworthy deployment of autonomous agents, accelerating the responsible adoption of this technology in sensitive environments.
+To address this gap, we propose SAGA, a Security Architecture for Governing Agentic systems, that offers user oversight over their agents’ lifecycle. In our design, users register their agents with a central entity, the Provider, that maintains agents contact information, user-defined access control policies, and helps agents enforce these policies on inter- agent communication. We introduce a cryptographic mechanism for deriving access control tokens, that offers fine-grained control over an agent’s interaction with other agents, balancing security and performance consideration. We evaluate SAGA on several agentic tasks, using agents in different geolocations, and multiple on-device and cloud LLMs, demonstrating minimal performance overhead with no impact on underlying task utility in a wide range of conditions. Our architecture enables secure and trustworthy deployment of autonomous agents, accelerating the responsible adoption of this technology in sensitive environments.
+
 <hr>
 
 ## Requirements
@@ -28,6 +29,8 @@ Also make sure that `mongoDB` is installed (see [instructions](https://www.mongo
 
 To set things up, we will first begin by starting a `CA` server, followed by a `Provider` server for our SAGA protocol.
 
+**Before you begin**: if you wish to run SAGA's core components (CA, Provider) locally, you need to set all the IPs in the `config.yaml` to `127.0.0.1`. An example of a local configuration can be found in [`config_local.yaml`](config_local.yaml). You can omit any steps that involve updating IPs in the following steps.
+
 #### 1. Setup a CA
 
 Generate valid credentials and host the *.crt, *.key, and *pub files at some endpoint.
@@ -42,7 +45,7 @@ One way to host these files is to run a simple fileserver, such as a python HTTP
 cd saga/ca/ && python -m http.server
 ```
 
-Take note of the `endpoint` where this CA is hosted and update it under `config.yaml` for the `ca`.
+Take note of the `endpoint` where this CA is hosted and update it under `config.yaml` for the `ca`. If running locally, omit this step.
 
 #### 2. Setup the Provider
 
@@ -52,7 +55,12 @@ Host this provider service at some endpoint by running the following command. Th
 cd saga/provider/ && python provider.py
 ```
 
-Take note of the `endpoint` and update `config.yaml` for the `provider`.
+Take note of the `endpoint` and update `config.yaml` for the `provider`. If running locally, omit this step.
+
+### Troubleshooting
+Certificates can sometimes be tricky. If you are getting SSL errors (e.g., `SSL: CERTIFICATE_VERIFY_FAILED`), it's most likely a `config.yaml` error. 
+
+Whenever you update the config file, it's **always good practice** to delete previously generated `.key`, `.pub` and `.crt` files. You can find such keys and certificates in `saga/ca` and `saga/provider`.
 
 ## User Registration
 

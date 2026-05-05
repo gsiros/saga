@@ -3,22 +3,23 @@ from pymongo import MongoClient
 from saga.config import MONGO_URI_FOR_TOOLS
 
 
+SAGA_TOOLS_DB = "saga_tools"
+
+
 class BaseTool:
     def __init__(self, tool_name):
         self.tool_name = tool_name
+        self.db_name = SAGA_TOOLS_DB
+        self.collection_name = tool_name
         self.mongo_uri = MONGO_URI_FOR_TOOLS
 
-        # Make sure relevant mongoDB will be available and created
-        # db = self.client.get_database(self.tool_name)
-        # collection = db.get_collection(self.username + "_inbox")
+    def _get_collection(self, client: MongoClient):
+        return client.get_database(self.db_name).get_collection(self.collection_name)
 
     def _clear_data(self):
         client = MongoClient(self.mongo_uri)
-        db = client.get_database(self.tool_name)
-        # Purge all data in this tool's storage
-        for collection_name in db.list_collection_names():
-            collection = db.get_collection(collection_name)
-            collection.delete_many({})
+        collection = self._get_collection(client)
+        collection.delete_many({})
         client.close()
 
     def _get_email_from_field(self, text: str) -> str:

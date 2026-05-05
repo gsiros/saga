@@ -1,0 +1,18 @@
+attacker[active]
+
+principal A[
+  generates SK_A, q
+  PK_A = G^SK_A
+  q_sig = SIGN(SK_A, q)
+]
+
+A -> B: [PK_A], q, q_sig
+
+principal B[
+  _ = SIGNVERIF(PK_A, q, q_sig)?
+]
+
+queries[
+  authentication? A -> B: q
+]
+

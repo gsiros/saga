@@ -1,0 +1,147 @@
+(*
+  SAGA REGISTRATION PROTOCOL; CHECKING AUTHENTICATION
+  AUTHOR: [REDACTED]
+
+  Stated Assumption #1: X25519 used; asymm keys can be used for signing *and* dh
+*)
+
+set simpEqAll = false. 
+set selFun = Nounifset.   
+set redundancyElim = best.
+set redundantHypElim = true.  
+set simplifyProcess = true.
+set stopTerm = false.
+set attacker = active.
+
+free c: channel.
+free prov_ca: channel.
+
+free a: channel. (* channel for the attacker *)
+free p: channel [private]. (* For the authenticated distribution of public keys, which are verified out of band. This is a standard assumption. *)
+
+type key.
+type skey.
+type pkey.
+
+fun pk(skey): pkey.
+
+(* signing functions *)
+
+fun okay():bitstring.
+fun rb(pkey): bitstring [data].
+fun sign(skey, bitstring): bitstring.
+reduc forall m: bitstring, sk: skey; checksign(pk(sk), m, sign(sk, m)) = okay.
+
+(* concat functions *)
+
+fun concat1(bitstring, pkey): bitstring [data].
+fun concat2(bitstring, bitstring, pkey, pkey, pkey): bitstring [data].
+fun concat3(bitstring, bitstring, pkey, pkey, bitstring): bitstring [data].
+
+(* the events *)
+event EndPeerA(bitstring, bitstring, pkey).
+event EndProvider(bitstring, bitstring, pkey).
+
+
+event start().
+
+free ED_A: bitstring [private].
+free aid_A: bitstring [private].
+free uid_A: bitstring [private].
+free SOTK1_A: skey [private].
+free SAC_A: skey [private].
+
+let PeerA(SK_A: skey, PK_A: pkey, PK_Prov: pkey, PK_CA: pkey) =
+  phase 1;
+
+  let PAC_A = pk(SAC_A) in
+  let OTK1_A = pk(SOTK1_A) in
+  let OTK1_A_sig = sign(SK_A, rb(OTK1_A)) in
+
+  phase 2;
+
+  let sigma_A_sig = sign(SK_A, concat2(aid_A, ED_A, PK_A, PAC_A, PK_Prov)) in
+
+  out(c, (aid_A, OTK1_A_sig, OTK1_A, sigma_A_sig, PAC_A, ED_A));
+  (* Peer A OTK w/ Sig to Provider *)
+
+
+  in(c, sigma_Prov_sig: bitstring);
+  if checksign(PK_Prov, concat3(aid_A, ED_A, PK_A, PAC_A, sigma_A_sig), sigma_Prov_sig) = okay then
+
+  event EndPeerA(ED_A, aid_A, OTK1_A);
+
+  0.
+
+let CA(SK_CA: skey, PK_CA: pkey, PK_A: pkey, PK_Prov: pkey) =
+
+  phase 1;
+
+  let Cert_A = sign(SK_CA, concat1(aid_A, PK_A)) in
+  out(prov_ca, (Cert_A, aid_A, PK_A)); (* CA publishes A's cert *)
+  
+  phase 2;
+    
+  0.
+
+let Provider(SK_Prov: skey, PK_Prov: pkey, PK_CA: pkey) = 
+
+  phase 2;
+
+  in(prov_ca, (Cert_A: bitstring, aid_A:bitstring, PK_A: pkey));
+
+  in(c, (aid_A: bitstring, OTK1_A_sig: bitstring, OTK1_A: pkey, sigma_A_sig: bitstring, PAC_A: pkey, ED_A: bitstring));
+
+  if checksign(PK_CA, concat1(aid_A, PK_A), Cert_A) = okay then
+  if checksign(PK_A, rb(OTK1_A), OTK1_A_sig) = okay then
+  if checksign(PK_A, concat2(aid_A, ED_A, PK_A, PAC_A, PK_Prov), sigma_A_sig) = okay then
+  let sigma_Prov_sig = sign(SK_Prov, concat3(aid_A, ED_A, PK_A, PAC_A, sigma_A_sig)) in
+
+  event EndProvider(ED_A, aid_A, OTK1_A);
+  out(c, sigma_Prov_sig); (* Send sig to Peer A*)
+
+  0.
+
+query event(start()).
+
+(* reachability *)
+query x: bitstring, y: bitstring, k: pkey; event(EndProvider(x, y, k)).
+query x: bitstring, y:bitstring, k: pkey; event(EndPeerA(x, y, k)).
+
+(* Authenticating the peer to the provider *)
+query x: bitstring, y:bitstring, k:pkey; event(EndPeerA(x, y, k)) ==> event(EndProvider(x, y, k)).
+
+(* 
+
+$ time proverif registration.pv
+
+Verification output from ProVerif with comments:
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(start) is false. 
+  (sanity check; the process always starts)
+
+Query not event(EndProvider(x,y,k)) is false.
+  (sanity check; the EndProvider event is always reachable)
+
+Query not event(EndPeerA(x,y,k)) is false.
+  (sanity check; the EndPeerA event is always reachable)
+
+Query event(EndPeerA(x,y,k)) ==> event(EndProvider(x,y,k)) is true.
+  (the provider receives authenticated values from 
+   peer A, thereby successfully authenticating peer A)
+--------------------------------------------------------------
+
+0.08s user 0.01s system 97% cpu 0.094 total
+*)
+
+process 
+	new SK_CA: skey; let PK_CA = pk(SK_CA) in
+  new SK_Prov: skey; let PK_Prov = pk(SK_Prov) in
+  new SK_A: skey; let PK_A = pk(SK_A) in
+  out(a, (PK_CA, PK_Prov, PK_A));
+  event start();
+  ( (!CA(SK_CA, PK_CA, PK_A, PK_Prov)) | 
+    (!Provider(SK_Prov, PK_Prov, PK_CA)) | 
+    (!PeerA(SK_A, PK_A, PK_Prov, PK_CA)))

@@ -1,0 +1,320 @@
+(*
+  SAGA FULL AGENT COMMUNICATION PROTOCOL; CHECKING SECRECY AND AUTHENTICATION
+  AUTHOR: [REDACTED]
+
+  Stated Assumption #1: X25519 used; asymm keys can be used for signing *and* dh
+*)
+
+(* see: 6.7.2 of the Proverif manual for more details on optimizations *)
+
+set simpEqAll = false. 
+set selFun = Nounifset.   
+set redundancyElim = best.
+set redundantHypElim = true.  
+set simplifyProcess = true.
+set stopTerm = false.
+
+free c: channel.
+free prov_ca: channel.
+free prov_b: channel.
+free a: channel. (* channel for publishing materials to the attacker *)
+free p: channel [private]. (* For the authenticated distribution of public keys, which are verified out of band. This is a standard assumption. 
+
+This can equivalently be accomplished with a table, as shown here:
+https://github.com/Inria-Prosecco/pqxdh-analysis/blob/a09439cc350629ec430fb486305baa4001abbee1/revision3/proverif/pqxdh-model.cpp.pv#L135
+*)
+
+(* Symmetric key encryption *)
+free token: bitstring [private].
+
+type key.
+
+fun senc(key, bitstring): bitstring.
+reduc forall m: bitstring, k: key; sdec(k, senc(k,m)) = m.
+
+type skey.
+type pkey.
+
+fun pk(skey): pkey.
+
+(* Digital signatures *)
+
+fun okay():bitstring.
+fun rb(pkey): bitstring [data].
+fun sign(skey, bitstring): bitstring.
+reduc forall m: bitstring, sk: skey; checksign(pk(sk), m, sign(sk, m)) = okay.
+
+(* Diffie-Hellman *)
+(* DH -> Public^Private *)
+
+fun dh(pkey, skey): key.
+equation forall a: skey, b: skey; dh(pk(a), b) = dh(pk(b), a). (* symmetry of DH *) 
+(* DH could equally be accomplished in PV by defining exponentials and scalars, 
+   a la the PQXDH protocol formalization: 
+   https://github.com/Inria-Prosecco/pqxdh-analysis/blob/a09439cc350629ec430fb486305baa4001abbee1/revision3/proverif/pqxdh-model.cpp.pv#L26 *)
+
+(* The concat functions *)
+
+fun concat1(bitstring, pkey): bitstring [data].
+fun concat2(bitstring, bitstring, pkey, pkey, pkey): bitstring [data].
+fun concat3(bitstring, bitstring, pkey, pkey, bitstring): bitstring [data].
+
+(* Process Definitions *)
+
+event EndAuthA(bitstring, bitstring, pkey).
+event EndProviderAuthA(bitstring, bitstring, pkey).
+
+event EndAuthB(bitstring, bitstring, pkey).
+event EndProviderAuthB(bitstring, bitstring, pkey).
+
+event EndAgentAuthA(bitstring, bitstring, key).
+event EndAgentAuthB(bitstring, bitstring, key).
+
+event start().
+
+free ED_A: bitstring [private].
+free aid_A: bitstring [private].
+free uid_A: bitstring [private].
+free SOTK1_A: skey [private].
+free SAC_A: skey [private].
+
+free ED_B: bitstring [private].
+free aid_B: bitstring [private].
+free uid_B: bitstring [private].
+free SOTK1_B: skey [private].
+free SAC_B: skey [private].
+
+let PeerA(SK_A: skey, PK_A: pkey, PK_Prov: pkey, PK_CA: pkey, PK_B: pkey) = 
+
+  phase 1;
+
+  let PAC_A = pk(SAC_A) in
+  let OTK1_A = pk(SOTK1_A) in
+  let OTK1_A_sig = sign(SK_A, rb(OTK1_A)) in
+
+  phase 2;
+
+  let sigma_A_sig = sign(SK_A, concat2(aid_A, ED_A, PK_A, PAC_A, PK_Prov)) in
+
+  out(c, (aid_A, OTK1_A_sig, OTK1_A, sigma_A_sig, PAC_A, ED_A));
+  (* Peer A OTK w/ Sig to Provider *)
+
+
+  in(c, sigma_Prov_sig_A: bitstring);
+  if checksign(PK_Prov, concat3(aid_A, ED_A, PK_A, PAC_A, sigma_A_sig), sigma_Prov_sig_A) = okay then
+
+  event EndAuthA(ED_A, aid_A, OTK1_A);
+
+  phase 5;
+
+  in(c, (aid_B: bitstring, Cert_B: bitstring, ED_B: bitstring, PAC_B: pkey, sigma_B_sig: bitstring, sigma_Prov_sig_B: bitstring));
+
+  if checksign(PK_Prov, concat3(aid_B, ED_B, PK_B, PAC_B, sigma_B_sig), sigma_Prov_sig_B) = okay then
+
+  let DH_A = dh(PAC_B, SOTK1_A) in
+  (* new token: bitstring; *)
+  let token_sig = sign(SK_A, token) in
+  event EndAgentAuthA(token, ED_A, DH_A);
+  out(c, (token_sig, senc(DH_A, token)));
+
+  0.
+
+let PeerB(SK_B: skey, PK_B: pkey, PK_Prov: pkey, PK_CA: pkey, PK_A: pkey) =  
+
+  phase 3;
+
+  let PAC_B = pk(SAC_B) in
+  let OTK1_B = pk(SOTK1_B) in
+  let OTK1_B_sig = sign(SK_B, rb(OTK1_B)) in
+
+  phase 4;
+
+  let sigma_B_sig = sign(SK_B, concat2(aid_B, ED_B, PK_B, PAC_B, PK_Prov)) in
+
+  out(c, (aid_B, OTK1_B_sig, OTK1_B, sigma_B_sig, PAC_B, ED_B));
+  (* Peer B OTK w/ Sig to Provider *)
+
+  in(c, sigma_Prov_sig_B: bitstring);
+  if checksign(PK_Prov, concat3(aid_B, ED_B, PK_B, PAC_B, sigma_B_sig), sigma_Prov_sig_B) = okay then
+
+  event EndAuthB(ED_B, aid_B, OTK1_B);
+
+  phase 5;
+
+  in(prov_b, (Cert_A: bitstring, Cert_B:bitstring, aid_A: bitstring, OTK1_A_sig: bitstring, OTK1_A: pkey, sigma_A_sig: bitstring, PAC_A: pkey, ED_A: bitstring));
+
+  if checksign(PK_CA, concat1(aid_A, PK_A), Cert_A) = okay then
+  if checksign(PK_A, rb(OTK1_A), OTK1_A_sig) = okay then
+  if checksign(PK_A, concat2(aid_A, ED_A, PK_A, PAC_A, PK_Prov), sigma_A_sig) = okay then
+
+  let DH_B = dh(OTK1_A, SAC_B) in
+
+  out(c, (aid_B, Cert_B, ED_B, PAC_B, sigma_B_sig, sigma_Prov_sig_B));
+
+  phase 6;
+
+  in(c, (token_sig:bitstring, token_enc:bitstring)); 
+
+  let token = sdec(DH_B, token_enc) in
+
+  if checksign(PK_A, token, token_sig) = okay then 
+  event EndAgentAuthB(token, ED_A, DH_B);
+
+  0.
+
+let CA(SK_CA: skey, PK_CA: pkey, PK_A: pkey, PK_B: pkey, PK_Prov: pkey) =
+
+  (* Begin A Cert Generation *)
+
+  phase 1;
+
+  let Cert_A = sign(SK_CA, concat1(aid_A, PK_A)) in
+  out(prov_ca, (Cert_A, aid_A, PK_A)); (* CA publishes A's cert *)
+
+  phase 2;
+
+  phase 3;
+
+  (* End A Cert Generation *)
+
+  (* Begin B Cert Generation *)
+
+  let Cert_B = sign(SK_CA, concat1(aid_B, PK_B)) in
+  out(prov_ca, (Cert_B, aid_B, PK_B)); (* CA publishes A's cert *)
+
+  (* End B Cert Generation *)
+
+  phase 4;
+
+  0.
+
+let Provider(SK_Prov: skey, PK_Prov: pkey, PK_CA: pkey) = 
+
+  phase 2;
+
+  (* Begin Authenticating A *)
+
+  in(prov_ca, (Cert_A: bitstring, aid_r1:bitstring, PK_A: pkey));
+  if aid_r1 = aid_A then
+
+  in(c, (aid_A: bitstring, OTK1_A_sig: bitstring, OTK1_A: pkey, sigma_A_sig: bitstring, PAC_A: pkey, ED_A: bitstring));
+
+  if checksign(PK_CA, concat1(aid_A, PK_A), Cert_A) = okay then
+  if checksign(PK_A, rb(OTK1_A), OTK1_A_sig) = okay then
+  if checksign(PK_A, concat2(aid_A, ED_A, PK_A, PAC_A, PK_Prov), sigma_A_sig) = okay then
+  let sigma_Prov_sig_A = sign(SK_Prov, concat3(aid_A, ED_A, PK_A, PAC_A, sigma_A_sig)) in
+
+  event EndProviderAuthA(ED_A, aid_A, OTK1_A);
+
+  out(c, sigma_Prov_sig_A); (* Send sig to Peer A*)
+
+  phase 3;
+
+  phase 4;
+
+  in(prov_ca, (Cert_B: bitstring, aid_r2:bitstring, PK_B: pkey));
+  if aid_r2 = aid_B then
+
+  in(c, (aid_B: bitstring, OTK1_B_sig: bitstring, OTK1_B: pkey, sigma_B_sig: bitstring, PAC_B: pkey, ED_B: bitstring));
+
+  if checksign(PK_CA, concat1(aid_B, PK_B), Cert_B) = okay then
+  if checksign(PK_B, rb(OTK1_B), OTK1_B_sig) = okay then
+  if checksign(PK_B, concat2(aid_B, ED_B, PK_B, PAC_B, PK_Prov), sigma_B_sig) = okay then
+  let sigma_Prov_sig_B = sign(SK_Prov, concat3(aid_B, ED_B, PK_B, PAC_B, sigma_B_sig)) in
+
+  event EndProviderAuthB(ED_B, aid_B, OTK1_B);
+  out(c, sigma_Prov_sig_B); (* Send sig to Peer B*)
+
+  phase 5;
+
+  out(prov_b, (Cert_A, Cert_B, aid_A, OTK1_A_sig, OTK1_A, sigma_A_sig, PAC_A, ED_A));
+
+  0.
+
+
+query event(start()).
+
+(* reachability *)
+query x: bitstring, y: bitstring, k:pkey; event(EndAuthB(x,y, k)).
+query x: bitstring, y: bitstring, k:pkey; event(EndAuthA(x,y, k)).
+query x: bitstring, y: bitstring, k: pkey; event(EndProviderAuthA(x,y,k)).
+query x: bitstring, y: bitstring, k: pkey; event(EndProviderAuthB(x,y,k)). 
+query x: bitstring, y: bitstring, k: key; event(EndAgentAuthA(x,y,k)).
+query x: bitstring, y: bitstring, k: key; event(EndAgentAuthB(x,y,k)). 
+
+
+(* authenticating B's token against A *)
+query x: bitstring, y: bitstring, k: key; event(EndAgentAuthB(x,y,k)) ==> event(EndAgentAuthA(x,y,k)).
+
+(* authenticating the agents against the provider *)
+query x: bitstring, y:bitstring, k:pkey; event(EndAuthA(x, y, k)) ==> event(EndProviderAuthA(x, y, k)).
+query x: bitstring, y:bitstring, k:pkey; event(EndAuthB(x, y, k)) ==> event(EndProviderAuthB(x, y, k)).
+
+(* secrecy of the policy token transmitted from peer A to B, after authentication *)
+query attacker(token). 
+
+(*
+
+$ time proverif agent_communication.pv
+
+Verification output from ProVerif with comments:
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(start) is false.
+  (sanity check; the process always starts)
+
+Query not event(EndAuthB(x,y,k)) is false.
+  (sanity check; the EndAuthB event is always reachable)
+
+Query not event(EndAuthA(x,y,k)) is false.
+  (sanity check; the EndAuthA event is always reachable)
+
+Query not event(EndProviderAuthA(x,y,k)) is false.
+  (sanity check; the EndProviderAuthA event is always reachable)
+
+Query not event(EndProviderAuthB(x,y,k)) is false.
+  (sanity check; the EndProviderAuthB event is always reachable)
+
+Query not event(EndAgentAuthA(x,y,k)) is false.
+  (sanity check; the EndAgentAuthA event is always reachable)
+
+Query not event(EndAgentAuthB(x,y,k)) is false.
+  (sanity check; the EndAgentAuthB event is always reachable)
+
+Query event(EndAgentAuthB(x,y,k)) ==> event(EndAgentAuthA(x,y,k)) is true.
+  (agent A successfully receives authenticated
+   values from agent B)
+
+Query event(EndAuthA(x,y,k)) ==> event(EndProviderAuthA(x,y,k)) is true.
+  (the provider receives authenticated values from 
+   peer A, thereby successfully authenticating peer A)
+
+Query event(EndAuthB(x,y,k)) ==> event(EndProviderAuthB(x,y,k)) is true.
+  (the provider receives authenticated values from 
+   peer B, thereby successfully authenticating peer B)
+
+Query not attacker_p6(token[]) is true.
+  (* the transmitted token from agent B to agent 
+   A is not derivable by the attacker *)
+
+--------------------------------------------------------------
+
+real	6m35.669s
+user	6m26.630s
+sys	0m4.721s
+
+*)
+
+process 
+	new SK_CA: skey; let PK_CA = pk(SK_CA) in
+  new SK_Prov: skey; let PK_Prov = pk(SK_Prov) in
+  new SK_A: skey; let PK_A = pk(SK_A) in 
+  new SK_B: skey; let PK_B = pk(SK_B) in 
+  out(a, (PK_A, PK_B, PK_Prov, PK_CA)); (* give public keys to the attacker *)
+  event start();
+
+  ( (!CA(SK_CA, PK_CA, PK_A, PK_B, PK_Prov)) | 
+    (!Provider(SK_Prov, PK_Prov, PK_CA)) | 
+    (!PeerA(SK_A, PK_A, PK_Prov, PK_CA, PK_B)) | 
+    (!PeerB(SK_B, PK_B, PK_Prov, PK_CA, PK_A)))

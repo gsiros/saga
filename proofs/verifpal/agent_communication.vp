@@ -1,0 +1,133 @@
+attacker[active]
+
+principal CA[
+  generates SK_CA
+  PK_CA = G^SK_CA
+]
+
+principal Provider[
+  generates SK_Prov
+  PK_Prov = G^SK_Prov
+]
+
+CA -> Provider: [PK_CA]
+
+// ========== ESTABLISH A ==========
+
+principal A[
+    generates SK_A, SAC_A, SOTK1_A, aid_A, uid_A, ED_A
+    PK_A = G^SK_A // TLS
+    PAC_A = G^SAC_A
+    OTK1_A = G^SOTK1_A
+
+    OTK1_A_sig = SIGN(SK_A, OTK1_A)
+]
+
+CA -> A: [PK_CA]
+Provider -> A: [PK_Prov]
+A -> CA: [aid_A], [PK_A]
+
+principal CA[
+  Cert_A = SIGN(SK_CA, CONCAT(aid_A, PK_A))
+]
+
+CA -> A: [Cert_A]
+
+principal A[
+  generates CP_A
+  sigma_A_sig = SIGN(SK_A, CONCAT(aid_A, ED_A, PK_A, PAC_A, PK_Prov))
+]
+
+A -> Provider: aid_A, ED_A, CP_A, [PK_A], Cert_A, [PAC_A], OTK1_A, OTK1_A_sig, sigma_A_sig
+
+principal Provider[
+  _ = SIGNVERIF(PK_CA, CONCAT(aid_A, PK_A), Cert_A)? 
+  _ = SIGNVERIF(PK_A, OTK1_A, OTK1_A_sig)?
+  _ = SIGNVERIF(PK_A, CONCAT(aid_A, ED_A, PK_A, PAC_A, PK_Prov), sigma_A_sig)?
+  sigma_A_Prov_sig = SIGN(SK_Prov, CONCAT(aid_A, Cert_A, ED_A, PAC_A, sigma_A_sig))
+]
+
+Provider -> A: sigma_A_Prov_sig
+
+principal A[
+  _ = SIGNVERIF(PK_Prov, CONCAT(aid_A, Cert_A, ED_A, PAC_A, sigma_A_sig), sigma_A_Prov_sig)?
+]
+
+// ========== ESTABLISH B ==========
+
+principal B[
+    generates SK_B, SAC_B, SOTK1_B, aid_B, uid_B, ED_B
+    PK_B = G^SK_B // TLS
+    PAC_B = G^SAC_B
+    OTK1_B = G^SOTK1_B
+
+    OTK1_B_sig = SIGN(SK_B, OTK1_B)
+]
+
+CA -> B: [PK_CA]
+Provider -> B: [PK_Prov]
+B -> CA: [aid_B], [PK_B]
+
+principal CA[
+  Cert_B = SIGN(SK_CA, CONCAT(aid_B, PK_B))
+]
+
+CA -> B: [Cert_B]
+
+principal B[
+  generates CP_B
+  sigma_B_sig = SIGN(SK_B, CONCAT(aid_B, ED_B, PK_B, PAC_B, PK_Prov))
+]
+
+B -> Provider: aid_B, ED_B, CP_B, [PK_B], Cert_B, [PAC_B], OTK1_B, OTK1_B_sig, sigma_B_sig
+
+principal Provider[
+  _ = SIGNVERIF(PK_CA, CONCAT(aid_B, PK_B), Cert_B)? 
+  _ = SIGNVERIF(PK_B, OTK1_B, OTK1_B_sig)?
+  _ = SIGNVERIF(PK_B, CONCAT(aid_B, ED_B, PK_B, PAC_B, PK_Prov), sigma_B_sig)?
+  sigma_B_Prov_sig = SIGN(SK_Prov, CONCAT(aid_B, Cert_B, ED_B, PAC_B, sigma_B_sig))
+]
+
+Provider -> B: sigma_B_Prov_sig
+
+principal B[
+  _ = SIGNVERIF(PK_Prov, CONCAT(aid_B, Cert_B, ED_B, PAC_B, sigma_B_sig), sigma_B_Prov_sig)?
+]
+
+// =========== Inter-agent Communication ==========
+Provider -> A: aid_B, [PK_B]
+Provider -> B: aid_A, [PK_A]
+
+// *B requests to talk with A*
+// B -> Provider: aid_A 
+
+Provider -> B: Cert_A, PAC_A, ED_A, OTK1_A, OTK1_A_sig, sigma_A_sig
+
+principal B[
+  _ = SIGNVERIF(PK_CA, CONCAT(aid_A, PK_A), Cert_A)?
+  _ = SIGNVERIF(PK_A, CONCAT(aid_A, ED_A, PK_A, PAC_A, PK_Prov), sigma_A_sig)?
+  _ = SIGNVERIF(PK_A, OTK1_A, OTK1_A_sig)?
+
+  DH_B = OTK1_A^SAC_B
+  SDHK_B = HKDF(DH_B, nil, nil)
+]
+
+B -> A: Cert_B, ED_B, PAC_B, sigma_B_sig, sigma_B_Prov_sig // aid_b also included
+
+principal A[
+  _ = SIGNVERIF(PK_Prov, CONCAT(aid_B, Cert_B, ED_B, PAC_B, sigma_B_sig), sigma_B_Prov_sig)?
+  DH_A = PAC_B^SOTK1_A
+  SDHK_A = HKDF(DH_A, nil, nil)
+  generates nonce, T_issued, T_expire, Q_max
+  token_enc = ENC(SDHK_A, CONCAT(nonce, T_issued, T_expire, Q_max, PAC_B))
+]
+
+A -> B: token_enc
+
+principal B[
+  token = DEC(SDHK_B, token_enc)
+]
+
+queries[
+  confidentiality? DH_A
+]

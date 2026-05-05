@@ -6,6 +6,7 @@ import os
 import json
 from pymongo import MongoClient
 
+from agent_backend.tools.base import SAGA_TOOLS_DB
 from agent_backend.tools.calendar import LocalCalendarTool
 from agent_backend.tools.email import LocalEmailClientTool
 from agent_backend.tools.documents import LocalDocumentsTool
@@ -21,14 +22,10 @@ def read_jsonl_data(path):
 
 
 def main(user_configs_path):
-    # Start with clearing out all tool-related data under
+    # Start with clearing out all tool-related data under the saga_tools database
     mongo_client = MongoClient(MONGO_URI_FOR_TOOLS)
-    # Drop all databases
-    dbs = mongo_client.list_database_names()
-    for db in dbs:
-        if db not in ["admin", "local", "saga", "config"]:
-            mongo_client.drop_database(db)
-    print("Dropped all databases in tools mongo!")
+    mongo_client.drop_database(SAGA_TOOLS_DB)
+    print(f"Dropped {SAGA_TOOLS_DB} database in tools mongo!")
 
     PATH_WITH_SEED_DATA = os.path.join(os.path.dirname(ROOT_DIR), "experiments", "data")
     for fpath in os.listdir(user_configs_path):

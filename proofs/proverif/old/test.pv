@@ -1,0 +1,69 @@
+set simpEqAll = false. 
+set selFun = Nounifset.   
+set redundancyElim = best.
+set redundantHypElim = true.  
+set simplifyProcess = true.
+set stopTerm = false.
+
+(*
+
+set expandIfTermsToTerms = true.
+set traceBacktracking = false.
+set reconstructTrace = false.
+set attacker = active.
+*)
+
+free c: channel.
+free a: channel.
+
+type key.
+
+type skey.
+type pkey.
+
+fun pk(skey): pkey.
+
+fun okay():bitstring.
+fun rb(pkey): bitstring [data, typeConverter].
+fun sign(skey, bitstring): bitstring.
+reduc forall m: bitstring, sk: skey; checksign(pk(sk), m, sign(sk, m)) = okay.
+fun signverif(pkey, bitstring, bitstring):bool reduc
+  forall sk: skey, m: bitstring;
+  signverif(pk(sk), m, sign(sk, m)) = true
+  otherwise forall pk: pkey, s: bitstring, m:bitstring;
+  signverif(pk, m, s) = false.
+ 
+event send(bitstring).
+event recv(bitstring).
+
+const q:bitstring [private].
+
+let PeerA(SK_A: skey, PK_A: pkey, PK_B: pkey) =
+
+
+  let q_sig = sign(SK_A, q) in
+  event send(q);
+  out(c, (q, q_sig)); 
+
+
+  0.
+
+let PeerB(SK_B: skey, PK_B: pkey, PK_A: pkey) =
+
+  in(c, (q: bitstring, q_sig: bitstring));
+
+  if checksign(PK_A, q, q_sig) = okay then
+  event recv(q);
+
+  0.
+
+query q: bitstring; event(recv(q)) ==> event(send(q)).
+query q: bitstring; event(send(q)) ==> event(recv(q)).
+
+process 
+  new SK_A: skey; let PK_A = pk(SK_A) in
+  new SK_B: skey; let PK_B = pk(SK_B) in
+
+  out(a, (PK_A, PK_B));
+  ( (PeerA(SK_A, PK_A, PK_B)) | 
+    (PeerB(SK_B, PK_B, PK_A)))
