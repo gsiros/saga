@@ -19,8 +19,10 @@ Install the `saga` package:
 ```bash
 pip install -e .
 ```
+Also make sure that `mongoDB` is installed (see [instructions](https://www.mongodb.com/docs/manual/installation/)) on the Provider side and the mongo server is up and running.
 
-Make sure that `mongoDB` is installed on the Provider side and the mongoDB server is up and running.
+> [!WARNING]
+> **Isolated MongoDB deployment required.** SAGA assumes *exclusive* access to its MongoDB instance. Use a dedicated, containerized deployment. **DO NOT** share the DBMS cluster with other projects. Misconfiguration can result in **permanent, unrecoverable data loss**. We, the authors, bear no responsibility for data loss arising from improper setup.
 
 ## Setup
 
